@@ -1,0 +1,36 @@
+
+.panel {
+    border: 1px solid #000000;
+}
+
+.control-panel {
+    border: 1px solid #000000;
+    width: 200px;
+
+}
+
+#shotSelectionDiv {
+    height: 100px;
+}
+
+#chatContainer {
+    padding: 5px;
+    position: relative;
+    height: 490px;
+}
+
+#chatText {
+    height: 85%;
+    overflow-y: scroll;
+}
+
+#chatFormDiv {
+    position: absolute;
+    bottom: 10px;
+}
+
+#gameDiv {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 10px;
+}
