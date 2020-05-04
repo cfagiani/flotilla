@@ -1,6 +1,9 @@
 let squareSize = 20;
-let squareCount = 14;
-
+let squareCount = 0;
+let mode = 'placement';
+let state = {playerState: null};
+let HEIGHT = 0;
+let WIDTH = 0;
 
 init();
 
@@ -8,8 +11,26 @@ function init() {
     setupBoard();
     let socket = io();
     setupChat(socket);
-
+    socket.on('stateUpdate', function (data) {
+        state = data;
+        squareCount = data.squareCount;
+        mode = data.mode;
+        draw();
+    });
 }
+
+
+function draw() {
+    let canvasElement = document.getElementById("gameCanvas");
+    HEIGHT = canvasElement.height;
+    WIDTH = canvasElement.width;
+    let drawingContext = canvasElement.getContext("2d");
+    drawBoard(drawingContext);
+    drawShips(drawingContext);
+    drawShots(drawingContext);
+    drawMessage(drawingContext);
+}
+
 
 function setupChat(socket) {
     let chatText = document.getElementById('chatText');
@@ -42,18 +63,35 @@ function setupBoard() {
         }
 
     }, false)
-    drawBoard();
 }
 
+function drawMessage(drawingContext) {
 
+}
 
-function drawBoard() {
-    let canvasElement = document.getElementById("gameCanvas");
-    let drawingContext = canvasElement.getContext("2d");
+function drawShips(drawingContext) {
+    if (state.playerState != null) {
+        for (let idx = 0; idx < state.playerState.ships.length; idx++) {
+            drawShip(state.playerState.ships[idx], idx, drawingContext);
+        }
+    }
+}
 
+function drawShip(ship, offset, drawingContext) {
+    if (ship.x < 0 || ship.y < 0) {
+        //ship is not placed, draw it in the initial position
+        drawingContext.fillStyle = "black";
+        drawingContext.fillRect((squareCount + 5) * squareSize, HEIGHT / 20 + ((HEIGHT / 20) * offset),
+            squareSize * ship.size, squareSize);
+    }
+}
+
+function drawShots(drawingContext) {
+}
+
+function drawBoard(drawingContext) {
     drawGrid(0, squareSize, squareCount, drawingContext);
     drawGrid(300, squareSize, squareCount, drawingContext);
-
 }
 
 function drawGrid(startY, size, count, drawingContext) {
