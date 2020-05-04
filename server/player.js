@@ -5,8 +5,8 @@ class Player {
         this.ships = [];
         this.shots = [];
         this.ships.push(createShip("carrier", 5, 1));
-        this.ships.push(createShip("destroyer", 4), 2);
-        this.ships.push(createShip("cruiser", 4, 3));
+        this.ships.push(createShip("destroyer", 4, 2));
+        this.ships.push(createShip("cruiser", 3, 3));
         this.ships.push(createShip("submarine", 3, 2));
         this.ships.push(createShip("corvette", 2, 3));
     }
