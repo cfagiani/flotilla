@@ -21,7 +21,7 @@ function createShip(name, size, speed) {
     for (let i = 0; i < size; i++) {
         hits[i] = 0;
     }
-    return {x: -1, y: -1, name: name, headingX: 1, headingY: 0, hits: hits, speed: speed, size: size}
+    return {x: -1, y: -1, name: name, heading: 0, hits: hits, speed: speed, size: size}
 }
 
 module.exports = Player;

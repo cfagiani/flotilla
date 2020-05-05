@@ -9,6 +9,8 @@ let canvasLeft = 0;
 let canvasTop = 0;
 let draggingShip = null;
 let BOTTOM_GRID_TOP = 300;
+let ROTATION_RADIANS = (Math.PI / 180) * 90;
+
 
 init();
 
@@ -93,27 +95,49 @@ function setupBoard() {
 
     canvasElement.addEventListener('mousedown', function (event) {
         if (canDrag && state.playerState != null) {
-            //check to see if we're inside a ship
-            let clickX = event.pageX - canvasLeft;
-            let clickY = event.pageY - canvasTop;
-            for (let i = 0; i < state.playerState.ships.length; i++) {
-                let ship = state.playerState.ships[i];
-                if (clickX >= ship.drawingX && clickX <= (ship.drawingX + (ship.size * squareSize))) {
-                    if (clickY >= ship.drawingY && clickY <= (ship.drawingY + squareSize)) {
-                        draggingShip = ship;
-                        break;
-                    }
-                }
-            }
+            draggingShip = getClickedShip(event);
         }
     });
     canvasElement.addEventListener('mouseup', function (event) {
         if (draggingShip != null) {
             // we dropped a ship. Snap to grid if over it.
+            if (draggingShip.drawingX <= (squareSize * squareCount) &&
+                draggingShip.drawingY <= (squareSize * squareCount)) {
+                // we're in the grid, find closest anchor and snap to it
+                draggingShip.x = Math.floor(draggingShip.drawingX / squareSize);
+                draggingShip.drawingX = draggingShip.x * squareSize;
+                draggingShip.y = Math.floor(draggingShip.drawingY / squareSize);
+                draggingShip.drawingY = draggingShip.y * squareSize;
+                draw();
+            }
         }
-        draggingShip = false;
+        draggingShip = null;
     });
 
+    canvasElement.addEventListener('dblclick', function (event) {
+        if (state.playerState != null) {
+            // if we double clicked a ship, rotate it by changing the heading
+            let ship = getClickedShip(event);
+            if (ship != null) {
+                ship.heading = ship.heading + 1 % 4;
+            }
+        }
+    });
+
+}
+
+function getClickedShip(event) {
+    let clickX = event.pageX - canvasLeft;
+    let clickY = event.pageY - canvasTop;
+    for (let i = 0; i < state.playerState.ships.length; i++) {
+        let ship = state.playerState.ships[i];
+        if (clickX >= ship.drawingX && clickX <= (ship.drawingX + (ship.size * squareSize))) {
+            if (clickY >= ship.drawingY && clickY <= (ship.drawingY + squareSize)) {
+                return ship;
+            }
+        }
+    }
+    return null;
 }
 
 function drawMessage(drawingContext) {
@@ -129,12 +153,9 @@ function drawShips(drawingContext) {
 }
 
 function drawShip(ship, drawingContext) {
-    if (ship.x < 0 || ship.y < 0) {
-        //ship is not placed, draw it in the initial position
-        drawingContext.fillStyle = "black";
-        drawingContext.fillRect(ship.drawingX, ship.drawingY,
-            squareSize * ship.size, squareSize);
-    }
+    drawingContext.fillStyle = "black";
+    drawingContext.fillRect(ship.drawingX, ship.drawingY,
+        squareSize * ship.size, squareSize);
 }
 
 function drawShots(drawingContext) {
