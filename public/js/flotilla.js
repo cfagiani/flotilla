@@ -28,9 +28,14 @@ function init() {
             for (let i = 0; i < data.playerState.ships.length; i++) {
                 data.playerState.ships[i].drawingX = (squareCount + 5) * squareSize;
                 data.playerState.ships[i].drawingY = HEIGHT / 20 + ((HEIGHT / 20) * i);
+                let img = new Image();
+                img.addEventListener('load', function (event) {
+                    data.playerState.ships[i].imageData = img;
+                    draw();
+                });
+                img.src = "img/" + data.playerState.ships[i].image;
             }
         }
-        draw();
     });
 }
 
@@ -119,7 +124,8 @@ function setupBoard() {
             // if we double clicked a ship, rotate it by changing the heading
             let ship = getClickedShip(event);
             if (ship != null) {
-                ship.heading = ship.heading + 1 % 4;
+                ship.heading = (ship.heading + 1) % 4;
+                draw();
             }
         }
     });
@@ -131,9 +137,29 @@ function getClickedShip(event) {
     let clickY = event.pageY - canvasTop;
     for (let i = 0; i < state.playerState.ships.length; i++) {
         let ship = state.playerState.ships[i];
-        if (clickX >= ship.drawingX && clickX <= (ship.drawingX + (ship.size * squareSize))) {
-            if (clickY >= ship.drawingY && clickY <= (ship.drawingY + squareSize)) {
-                return ship;
+        if (ship.heading === 0) {
+            if (clickX >= ship.drawingX && clickX <= (ship.drawingX + (ship.size * squareSize))) {
+                if (clickY >= ship.drawingY && clickY <= (ship.drawingY + squareSize)) {
+                    return ship;
+                }
+            }
+        } else if (ship.heading === 1) {
+            if (clickX >= ship.drawingX && clickX <= ship.drawingX + squareSize) {
+                if (clickY >= ship.drawingY && clickY <= ship.drawingY + (ship.size * squareSize)) {
+                    return ship;
+                }
+            }
+        } else if (ship.heading === 2) {
+            if (clickX <= ship.drawingX && clickX >= (ship.drawingX - (ship.size * squareSize))) {
+                if (clickY >= ship.drawingY && clickY <= (ship.drawingY + squareSize)) {
+                    return ship;
+                }
+            }
+        } else {
+            if (clickX >= ship.drawingX && clickX <= ship.drawingX + squareSize) {
+                if (clickY <= ship.drawingY && clickY >= ship.drawingY - (ship.size * squareSize)) {
+                    return ship;
+                }
             }
         }
     }
@@ -153,9 +179,58 @@ function drawShips(drawingContext) {
 }
 
 function drawShip(ship, drawingContext) {
-    drawingContext.fillStyle = "black";
-    drawingContext.fillRect(ship.drawingX, ship.drawingY,
-        squareSize * ship.size, squareSize);
+    let shipWidth = 0;
+    let shipY = ship.drawingY;
+    let shipX = ship.drawingX;
+    let centerX = shipX;
+    let centerY = shipY;
+    switch (ship.heading) {
+        case 0:
+            centerX = shipX;
+            centerY = shipY;
+            break;
+        case 1:
+            centerX = shipX + squareSize;
+            centerY = shipY + squareSize;
+            break;
+        case 2:
+            centerX = shipX;
+            centerY = shipY;
+            break;
+        case 3:
+            centerX = shipX;
+            centerY = shipY;
+            break;
+
+    }
+    let shipHeight = 0;
+    /*  if (ship.heading === 0 || ship.heading === 2) {
+          shipWidth = squareSize * ship.size;
+          shipHeight = squareSize;
+          if (ship.heading === 2) {
+              shipX = ship.drawingX - shipWidth;
+          }
+      } else {
+          shipWidth = squareSize;
+          shipHeight = squareSize * ship.size;
+          if (ship.heading === 3) {
+              shipY = ship.drawingY - (squareSize * ship.size);
+          }
+      }*/
+    if (ship.imageData != null) {
+        if (shipX != 380) {
+            console.log("CENTER: " + centerX + "," + centerY);
+            console.log("POS: " + shipX + "," + shipY);
+        }
+        drawingContext.translate(centerX, centerY);
+        drawingContext.rotate(ship.heading * ROTATION_RADIANS);
+        drawingContext.translate(-centerX, -centerY);
+        //drawingContext.drawImage(ship.imageData, shipX, shipY);
+        drawingContext.drawImage(ship.imageData, shipX, shipY);
+        drawingContext.translate(centerX, centerY);
+        drawingContext.rotate(-ship.heading * ROTATION_RADIANS);
+        drawingContext.translate(-centerX, -centerY);
+    }
 }
 
 function drawShots(drawingContext) {
