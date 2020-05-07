@@ -57,8 +57,10 @@ function draw() {
     drawBoard(drawingContext);
     drawShips(drawingContext);
     drawShots(drawingContext);
+    drawHits(drawingContext);
     drawMessage(drawingContext);
     drawButton(drawingContext);
+
 }
 
 
@@ -166,10 +168,10 @@ function setupBoard(socket) {
             // we dropped a ship. Snap to grid if over it.
             if (isFullyOnGrid(draggingShip)) {
                 // we're in the grid, find closest anchor and snap to it
-                draggingShip.x = Math.floor(draggingShip.drawingX / squareSize);
-                draggingShip.drawingX = draggingShip.x * squareSize;
-                draggingShip.y = Math.floor(draggingShip.drawingY / squareSize);
-                draggingShip.drawingY = draggingShip.y * squareSize;
+                draggingShip.x = Math.floor(draggingShip.drawingX / squareSize) + 1;
+                draggingShip.drawingX = (draggingShip.x - 1) * squareSize;
+                draggingShip.y = Math.floor(draggingShip.drawingY / squareSize) + 1;
+                draggingShip.drawingY = (draggingShip.y - 1) * squareSize;
             } else {
                 // not in the grid anymore so wipe the x,y coords
                 draggingShip.x = -1;
@@ -285,6 +287,10 @@ function drawShips(drawingContext) {
 function drawShip(ship, drawingContext) {
     let shipY = ship.drawingY;
     let shipX = ship.drawingX;
+    if (state.mode != 'placement') {
+        shipY = toDrawingCoordinate(ship.y, 0);
+        shipX = toDrawingCoordinate(ship.x, 0);
+    }
     let centerX = shipX;
     let centerY = shipY;
     switch (ship.heading) {
@@ -317,6 +323,25 @@ function drawShip(ship, drawingContext) {
 function drawShots(drawingContext) {
     if (state.playerState != null) {
         for (let i = 0; i < state.playerState.shots.length; i++) {
+            let shot = state.playerState.shots[i];
+            let color = "white";
+            if (shot.isHit) {
+                color = "red";
+            }
+            drawingContext.fillStyle = color;
+            let x = toDrawingCoordinate(shot.x, 0);
+            let y = toDrawingCoordinate(shot.y, BOTTOM_GRID_TOP);
+            drawingContext.fillRect(x, y, squareSize, squareSize);
+            drawingContext.font = "12px Arial";
+            drawingContext.fillStyle = "black";
+            drawingContext.fillText("" + Math.floor((state.turnNumber - shot.turnNumber) / 2), x + 8, y + 10);
+        }
+    }
+}
+
+function drawHits(drawingContext) {
+    if (state.playerState != null) {
+        for (let i = 0; i < state.playerState.ships.length; i++) {
 
         }
     }
@@ -343,6 +368,6 @@ function drawGrid(startY, size, count, drawingContext) {
 
 
 function toDrawingCoordinate(gridCoord, offset) {
-    return gridCoord * squareSize + offset;
+    return ((gridCoord - 1) * squareSize) + offset;
 }
 

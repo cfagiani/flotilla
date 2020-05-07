@@ -26,7 +26,7 @@ class Game {
             delete this.sockets[id];
             let player = this.participants[id];
             if (player !== undefined) {
-                if (player.playerNum < 2) {
+                if (player.playerNum <= 2) {
                     this.players[player.playerNum - 1] = null;
                 }
                 delete this.participants[id];

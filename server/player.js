@@ -54,9 +54,9 @@ class Player {
             for (let j = 0; j < this.ships.length; j++) {
                 if (ships[i].name === this.ships[j].name) {
                     this.ships[j].x = ships[i].x;
-                    this.ships[j].drawingX = ships[i].drawingX;
+                    //this.ships[j].drawingX = ships[i].drawingX;
                     this.ships[j].y = ships[i].y;
-                    this.ships[j].drawingY = ships[i].drawingY;
+                    //this.ships[j].drawingY = ships[i].drawingY;
                     break;
                 }
             }
