@@ -13,6 +13,50 @@ class Ship {
         }
     }
 
+    isSunk() {
+        for (let i = 0; i < this.hits.length; i++) {
+            if (this.hits[i] === 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    advance(maxX, maxY) {
+        if (this.isSunk()) {
+            return;
+        }
+        switch (this.heading) {
+            case 0:
+                if (this.x + this.size <= maxX) {
+                    this.x = Math.min(maxX - this.size + 1, this.x + this.speed);
+                } else {
+                    this.heading = 2;
+                }
+                break;
+            case 1:
+                if (this.y + this.size <= maxY) {
+                    this.y = Math.min(maxY - this.size + 1, this.y + this.speed);
+                } else {
+                    this.heading = 3;
+                }
+                break;
+            case 2:
+                if (this.x - this.size > 0) {
+                    this.x = Math.max(this.size, this.x - this.speed);
+                } else {
+                    this.heading = 0;
+                }
+                break;
+            case 3:
+                if (this.y - this.size > 0) {
+                    this.y = Math.max(this.size, this.y - this.speed);
+                } else {
+                    this.heading = 1;
+                }
+        }
+    }
+
     getState() {
         return {
             x: this.x,

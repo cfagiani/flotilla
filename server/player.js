@@ -32,7 +32,7 @@ class Player {
         return this.playerNum;
     }
 
-    shotAt(x, y, turnNumber) {
+    shotAt(x, y, turnNumber, squareCount) {
         let shot = new Shot(x, y, false, turnNumber);
         for (let i = 0; i < this.ships.length; i++) {
             let ship = this.ships[i];
@@ -40,6 +40,7 @@ class Player {
             if (ship.isHit(x, y)) {
                 shot.setHit();
             }
+            ship.advance(squareCount, squareCount);
         }
         return shot;
     }
@@ -54,9 +55,8 @@ class Player {
             for (let j = 0; j < this.ships.length; j++) {
                 if (ships[i].name === this.ships[j].name) {
                     this.ships[j].x = ships[i].x;
-                    //this.ships[j].drawingX = ships[i].drawingX;
+                    this.ships[j].heading = ships[i].heading;
                     this.ships[j].y = ships[i].y;
-                    //this.ships[j].drawingY = ships[i].drawingY;
                     break;
                 }
             }

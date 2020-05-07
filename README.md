@@ -32,7 +32,6 @@ TODO:
 * ship movement
 * refactor/clean-up code
 * display grid coordinates
-* draw hits
 * unit tests
 * submarine special hit condition
 

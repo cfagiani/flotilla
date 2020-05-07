@@ -66,7 +66,7 @@ class Game {
             } else {
                 otherPlayer = this.players[0];
             }
-            shooter.addShot(otherPlayer.shotAt(x, y, this.turnNumber));
+            shooter.addShot(otherPlayer.shotAt(x, y, this.turnNumber, SQUARE_COUNT));
             this.turnNumber++;
         }
     }
