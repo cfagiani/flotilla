@@ -342,7 +342,33 @@ function drawShots(drawingContext) {
 function drawHits(drawingContext) {
     if (state.playerState != null) {
         for (let i = 0; i < state.playerState.ships.length; i++) {
+            let ship = state.playerState.ships[i];
 
+            drawingContext.fillStyle = "red";
+            //if there are hits, render them
+
+            for (let j = 0; j < ship.hits.length; j++) {
+                let x = ship.x;
+                let y = ship.y;
+                if (ship.hits[j] === 1) {
+                    switch (ship.heading) {
+                        case 0:
+                            x = x + j;
+                            break;
+                        case 1:
+                            y = y + j;
+                            break;
+                        case 2:
+                            x = x - j;
+                            break;
+                        case 3:
+                            y = y - j;
+                            break;
+                    }
+                    drawingContext.fillRect(toDrawingCoordinate(x, 0) + (squareSize / 4), toDrawingCoordinate(y, 0) + (squareSize / 4), squareSize / 2, squareSize / 2);
+                }
+
+            }
         }
     }
 }
