@@ -28,7 +28,11 @@ For a submarine to be hit, it must be the only ship in that cell.
 TODO:
 * include attribution for sprites (https://opengameart.org/content/sea-warfare-set-ships-and-more) maybe
 * reset button prior to starting
-* limit players
+* different ordinance types
+* ship movement
+* refactor/clean-up code
 * display grid coordinates
 * draw hits
+* unit tests
+* submarine special hit condition
 

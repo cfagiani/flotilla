@@ -32,14 +32,28 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('sendMsgToServer', function (data) {
-        let name = (game.getPlayer(socket.id).getUsername());
+        let name = "User " + game.getPlayer(socket.id).getPlayerNum();
         for (let i in ALL_SOCKETS) {
             ALL_SOCKETS[i].emit('addToChat', name + ": " + data);
         }
     });
     socket.on('ready', function (data) {
-        console.log(data);
+        game.getPlayer(socket.id).setReady(data.ships, true);
+        if (game.getReadyCount() == 2) {
+            game.mode = 'play';
+            broadcastState();
+        }
     });
 
-
+    socket.on('takeTurn', function (data) {
+        game.recordTurn(data.playerId, data.x, data.y, data.ordinance);
+        //TODO: check for game over
+        broadcastState();
+    });
 });
+
+function broadcastState() {
+    for (let i in ALL_SOCKETS) {
+        ALL_SOCKETS[i].emit('stateUpdate', game.getState(ALL_SOCKETS[i].id));
+    }
+}

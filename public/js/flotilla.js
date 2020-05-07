@@ -15,12 +15,11 @@ let buttonPressed = false;
 let buttonWidth = 80;
 let buttonHeight = 40;
 let buttonY = 0;
-
+let SHIP_IMAGES = {};
 
 init();
 
 function init() {
-
     let socket = io();
     setupBoard(socket);
     setupChat(socket);
@@ -37,11 +36,15 @@ function init() {
                 data.playerState.ships[i].drawingY = HEIGHT / 20 + ((HEIGHT / 20) * i);
                 let img = new Image();
                 img.addEventListener('load', function (event) {
-                    data.playerState.ships[i].imageData = img;
+                    SHIP_IMAGES[data.playerState.ships[i].name] = img;
                     draw();
                 });
                 img.src = "img/" + data.playerState.ships[i].image;
             }
+        } else if (mode === 'play') {
+            //TODO: display either 'take turn' or 'waiting for opponent' message
+            draw();
+            canDrag = false;
         }
     });
 }
@@ -80,7 +83,6 @@ function drawButton(drawingContext) {
             drawingContext.moveTo(CONTROL_X + buttonWidth, buttonY);
             drawingContext.lineTo(CONTROL_X + buttonWidth, buttonY + buttonHeight);
             drawingContext.lineTo(CONTROL_X, buttonY + buttonHeight);
-
         }
         drawingContext.stroke();
     }
@@ -116,16 +118,18 @@ function setupBoard(socket) {
     HEIGHT = canvasElement.height;
     WIDTH = canvasElement.width;
     canvasElement.addEventListener('click', function (event) {
-        canvasLeft = canvasElement.offsetLeft + canvasElement.clientLeft;
-        canvasTop = canvasElement.offsetTop + canvasElement.clientTop;
+        if (state.playerState != null && state.playerState.isTurn) {
+            canvasLeft = canvasElement.offsetLeft + canvasElement.clientLeft;
+            canvasTop = canvasElement.offsetTop + canvasElement.clientTop;
 
-        let x = Math.floor(((event.pageX - canvasLeft) / squareSize)) + 1;
-        let y = Math.floor(((event.pageY - canvasTop) / squareSize)) + 1;
-        if (x <= squareCount && y <= squareCount) {
-            //TODO handle shot
-            console.log(x + ", " + y);
+            let x = Math.floor(((event.pageX - canvasLeft) / squareSize)) + 1;
+            let y = Math.floor(((event.pageY - canvasTop - BOTTOM_GRID_TOP) / squareSize)) + 1;
+            if (x <= squareCount && y >= 0 && y <= squareCount) {
+                console.log(x + ", " + y);
+                //TODO get selected ordinance
+                socket.emit('takeTurn', {playerId: state.playerState.id, x: x, y: y, ordinance: 'shell'});
+            }
         }
-
     }, false);
 
     canvasElement.addEventListener('mousemove', function (event) {
@@ -175,7 +179,10 @@ function setupBoard(socket) {
         if (buttonPressed) {
             // if Ready button was pressed, submit state to server
             socket.emit("ready", state.playerState);
+            // no more ship movement allowed
+            canDrag = false;
             buttonPressed = false;
+            //TODO: display "waiting for opponent" until we get the play message
         }
 
         draggingShip = null;
@@ -299,15 +306,20 @@ function drawShip(ship, drawingContext) {
             break;
     }
 
-    if (ship.imageData != null) {
+    if (SHIP_IMAGES[ship.name] !== undefined) {
         drawingContext.translate(centerX, centerY);
         drawingContext.rotate(ship.heading * ROTATION_RADIANS);
-        drawingContext.drawImage(ship.imageData, 0, 0);
+        drawingContext.drawImage(SHIP_IMAGES[ship.name], 0, 0);
         drawingContext.setTransform();
     }
 }
 
 function drawShots(drawingContext) {
+    if (state.playerState != null) {
+        for (let i = 0; i < state.playerState.shots.length; i++) {
+
+        }
+    }
 }
 
 function drawBoard(drawingContext) {
@@ -329,4 +341,8 @@ function drawGrid(startY, size, count, drawingContext) {
     }
 }
 
+
+function toDrawingCoordinate(gridCoord, offset) {
+    return gridCoord * squareSize + offset;
+}
 
