@@ -14,6 +14,10 @@ class Player {
     getState() {
         return {ships: this.ships, shots: this.shots};
     }
+
+    getUsername(){
+        return this.username;
+    }
 }
 
 function createShip(name, size, speed, image) {

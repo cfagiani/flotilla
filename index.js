@@ -18,21 +18,29 @@ console.log("Server started.");
 
 const ALL_SOCKETS = {};
 
+
 let io = require('socket.io')(serv, {});
 io.sockets.on('connection', function (socket) {
     socket.id = Math.random();
+
     ALL_SOCKETS[socket.id] = socket;
-    game.addPlayer(socket, socket.id);
+
+    game.addPlayer(socket);
 
     socket.on('disconnect', function (socket) {
         delete ALL_SOCKETS[socket.id];
+        game.removePlayer(socket.id);
         //Player.onDisconnect(socket);
-    })
+    });
+
     socket.on('sendMsgToServer', function (data) {
-        let name = ("" + socket.id).slice(2, 7)
+        let name = (game.getPlayer(socket.id).getUsername());
         for (let i in ALL_SOCKETS) {
             ALL_SOCKETS[i].emit('addToChat', name + ": " + data);
         }
+    });
+    socket.on('ready', function (data) {
+        console.log(data);
     });
 
 

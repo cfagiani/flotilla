@@ -9,10 +9,20 @@ class Game {
         this.mode = "placement";
     }
 
-    addPlayer(socket, username) {
+    addPlayer(socket) {
+        let count = Object.keys(this.sockets).length;
+
         this.sockets[socket.id] = socket;
-        this.players[socket.id] = new Player(socket.id, username);
+        this.players[socket.id] = new Player(socket.id, "User " + (count + 1));
         socket.emit("stateUpdate", this.getState(socket.id));
+
+    }
+
+    removePlayer(id) {
+        let sock = this.sockets[id];
+        if (sock !== undefined) {
+            delete this.sockets[id];
+        }
     }
 
     getState(id) {
@@ -22,6 +32,10 @@ class Game {
             squareCount: SQUARE_COUNT,
             playerState: this.players[id].getState()
         }
+    }
+
+    getPlayer(id) {
+        return this.players[id];
     }
 }
 

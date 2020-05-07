@@ -10,23 +10,31 @@ let canvasTop = 0;
 let draggingShip = null;
 let BOTTOM_GRID_TOP = 300;
 let ROTATION_RADIANS = (Math.PI / 180) * 90;
+let CONTROL_X = 0;
+let buttonPressed = false;
+let buttonWidth = 80;
+let buttonHeight = 40;
+let buttonY = 0;
 
 
 init();
 
 function init() {
-    setupBoard();
 
     let socket = io();
+    setupBoard(socket);
+
     setupChat(socket);
     socket.on('stateUpdate', function (data) {
         state = data;
         squareCount = data.squareCount;
+        CONTROL_X = (squareCount + 5) * squareSize;
+        buttonY = (squareSize - 1) * squareCount;
         mode = data.mode;
         if (mode === 'placement' && data.playerState != null) {
             canDrag = true;
             for (let i = 0; i < data.playerState.ships.length; i++) {
-                data.playerState.ships[i].drawingX = (squareCount + 5) * squareSize;
+                data.playerState.ships[i].drawingX = CONTROL_X;
                 data.playerState.ships[i].drawingY = HEIGHT / 20 + ((HEIGHT / 20) * i);
                 let img = new Image();
                 img.addEventListener('load', function (event) {
@@ -48,8 +56,45 @@ function draw() {
     drawShips(drawingContext);
     drawShots(drawingContext);
     drawMessage(drawingContext);
+    drawButton(drawingContext);
 }
 
+
+function drawButton(drawingContext) {
+    if (state.mode === "placement" && allShipsPlaced()) {
+
+        drawingContext.fillStyle = "gray";
+
+        drawingContext.fillRect(CONTROL_X, buttonY, buttonWidth, buttonHeight);
+        drawingContext.font = "20px Arial";
+        drawingContext.fillStyle = "black";
+        drawingContext.fillText("Ready", CONTROL_X + 10, buttonY + 25);
+        drawingContext.strokeStyle = "black";
+        drawingContext.strokeRect(CONTROL_X, buttonY, 80, 40);
+        drawingContext.strokeStyle = "white";
+        drawingContext.beginPath();
+        if (buttonPressed) {
+            drawingContext.moveTo(CONTROL_X, buttonY);
+            drawingContext.lineTo(CONTROL_X + buttonWidth, buttonY);
+            drawingContext.lineTo(CONTROL_X + buttonWidth, buttonY + buttonHeight);
+        } else {
+            drawingContext.moveTo(CONTROL_X + buttonWidth, buttonY);
+            drawingContext.lineTo(CONTROL_X + buttonWidth, buttonY + buttonHeight);
+            drawingContext.lineTo(CONTROL_X, buttonY + buttonHeight);
+
+        }
+        drawingContext.stroke();
+    }
+}
+
+function allShipsPlaced() {
+    for (let i = 0; i < state.playerState.ships.length; i++) {
+        if (state.playerState.ships[i].x < 0 || state.playerState.ships[i].y < 0) {
+            return false;
+        }
+    }
+    return true;
+}
 
 function setupChat(socket) {
     let chatText = document.getElementById('chatText');
@@ -67,7 +112,7 @@ function setupChat(socket) {
     }
 }
 
-function setupBoard() {
+function setupBoard(socket) {
     let canvasElement = document.getElementById("gameCanvas");
     HEIGHT = canvasElement.height;
     WIDTH = canvasElement.width;
@@ -101,22 +146,41 @@ function setupBoard() {
     canvasElement.addEventListener('mousedown', function (event) {
         if (canDrag && state.playerState != null) {
             draggingShip = getClickedShip(event);
+            if (allShipsPlaced()) {
+                let clickX = event.pageX - canvasLeft;
+                let clickY = event.pageY - canvasTop;
+                if (clickX >= CONTROL_X && clickX < CONTROL_X + buttonWidth) {
+                    if (clickY >= buttonY && clickY <= buttonY + buttonHeight) {
+                        buttonPressed = true;
+                        draw();
+                    }
+                }
+            }
         }
     });
     canvasElement.addEventListener('mouseup', function (event) {
         if (draggingShip != null) {
             // we dropped a ship. Snap to grid if over it.
-            if (draggingShip.drawingX <= (squareSize * squareCount) &&
-                draggingShip.drawingY <= (squareSize * squareCount)) {
+            if (isFullyOnGrid(draggingShip)) {
                 // we're in the grid, find closest anchor and snap to it
                 draggingShip.x = Math.floor(draggingShip.drawingX / squareSize);
                 draggingShip.drawingX = draggingShip.x * squareSize;
                 draggingShip.y = Math.floor(draggingShip.drawingY / squareSize);
                 draggingShip.drawingY = draggingShip.y * squareSize;
-                draw();
+            } else {
+                // not in the grid anymore so wipe the x,y coords
+                draggingShip.x = -1;
+                draggingShip.y = -1;
             }
         }
+        if (buttonPressed) {
+            // if Ready button was pressed, submit state to server
+            socket.emit("ready", state.playerState);
+            buttonPressed = false;
+        }
+
         draggingShip = null;
+        draw();
     });
 
     canvasElement.addEventListener('dblclick', function (event) {
@@ -129,7 +193,41 @@ function setupBoard() {
             }
         }
     });
+}
 
+function isFullyOnGrid(ship) {
+    let maxX = (squareSize * squareCount);
+    let maxY = (squareSize * squareCount);
+
+    let xSnap = Math.floor(draggingShip.drawingX / squareSize) * squareSize;
+    let ySnap = Math.floor(draggingShip.drawingY / squareSize) * squareSize;
+
+    if (xSnap <= maxX && ySnap <= maxY) {
+        // the anchor point is in the grid; now make sure the rest of the ship is still on it
+        switch (ship.heading) {
+            case 0:
+                if (xSnap + (ship.size * squareSize) <= maxX) {
+                    return true;
+                }
+                break;
+            case 1:
+                if (ySnap + (ship.size * squareSize) <= maxY) {
+                    return true;
+                }
+                break;
+            case 2:
+                if (xSnap - (ship.size * squareSize) >= 0) {
+                    return true;
+                }
+                break;
+            case 3:
+                if (ySnap - (ship.size * squareSize) >= 0) {
+                    return true;
+                }
+                break;
+        }
+    }
+    return false;
 }
 
 function getClickedShip(event) {
@@ -200,7 +298,6 @@ function drawShip(ship, drawingContext) {
             centerX = shipX;
             centerY = shipY + squareSize;
             break;
-
     }
 
     if (ship.imageData != null) {
