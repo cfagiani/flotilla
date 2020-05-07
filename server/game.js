@@ -11,17 +11,16 @@ class Game {
 
     addPlayer(socket) {
         let count = Object.keys(this.sockets).length;
-
         this.sockets[socket.id] = socket;
-        this.players[socket.id] = new Player(socket.id, "User " + (count + 1));
+        this.players[socket.id] = new Player(socket.id, "User " + (count + 1), count < 2 ? 'player' : 'observer');
         socket.emit("stateUpdate", this.getState(socket.id));
-
     }
 
     removePlayer(id) {
         let sock = this.sockets[id];
         if (sock !== undefined) {
             delete this.sockets[id];
+            delete this.players[id];
         }
     }
 

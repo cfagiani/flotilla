@@ -22,15 +22,13 @@ const ALL_SOCKETS = {};
 let io = require('socket.io')(serv, {});
 io.sockets.on('connection', function (socket) {
     socket.id = Math.random();
-
     ALL_SOCKETS[socket.id] = socket;
 
     game.addPlayer(socket);
 
-    socket.on('disconnect', function (socket) {
+    socket.on('disconnect', function () {
         delete ALL_SOCKETS[socket.id];
         game.removePlayer(socket.id);
-        //Player.onDisconnect(socket);
     });
 
     socket.on('sendMsgToServer', function (data) {

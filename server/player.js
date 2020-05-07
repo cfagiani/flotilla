@@ -1,21 +1,24 @@
 class Player {
-    constructor(id, username) {
+    constructor(id, username, role) {
         this.id = id;
         this.username = username;
+        this.role = role;
         this.ships = [];
         this.shots = [];
-        this.ships.push(createShip("carrier", 5, 1, "carrier.png"));
-        this.ships.push(createShip("destroyer", 4, 2, "destroyer.png"));
-        this.ships.push(createShip("cruiser", 3, 3, "cruiser.png"));
-        this.ships.push(createShip("submarine", 3, 2, "sub.png"));
-        this.ships.push(createShip("corvette", 2, 3, "corvette.png"));
+        if (this.role !== 'observer') {
+            this.ships.push(createShip("carrier", 5, 1, "carrier.png"));
+            this.ships.push(createShip("destroyer", 4, 2, "destroyer.png"));
+            this.ships.push(createShip("cruiser", 3, 3, "cruiser.png"));
+            this.ships.push(createShip("submarine", 3, 2, "sub.png"));
+            this.ships.push(createShip("corvette", 2, 3, "corvette.png"));
+        }
     }
 
     getState() {
         return {ships: this.ships, shots: this.shots};
     }
 
-    getUsername(){
+    getUsername() {
         return this.username;
     }
 }

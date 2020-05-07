@@ -23,7 +23,6 @@ function init() {
 
     let socket = io();
     setupBoard(socket);
-
     setupChat(socket);
     socket.on('stateUpdate', function (data) {
         state = data;
