@@ -179,7 +179,6 @@ function drawShips(drawingContext) {
 }
 
 function drawShip(ship, drawingContext) {
-    let shipWidth = 0;
     let shipY = ship.drawingY;
     let shipX = ship.drawingX;
     let centerX = shipX;
@@ -191,45 +190,24 @@ function drawShip(ship, drawingContext) {
             break;
         case 1:
             centerX = shipX + squareSize;
-            centerY = shipY + squareSize;
+            centerY = shipY;
             break;
         case 2:
-            centerX = shipX;
-            centerY = shipY;
+            centerX = shipX + squareSize;
+            centerY = shipY + squareSize;
             break;
         case 3:
             centerX = shipX;
-            centerY = shipY;
+            centerY = shipY + squareSize;
             break;
 
     }
-    let shipHeight = 0;
-    /*  if (ship.heading === 0 || ship.heading === 2) {
-          shipWidth = squareSize * ship.size;
-          shipHeight = squareSize;
-          if (ship.heading === 2) {
-              shipX = ship.drawingX - shipWidth;
-          }
-      } else {
-          shipWidth = squareSize;
-          shipHeight = squareSize * ship.size;
-          if (ship.heading === 3) {
-              shipY = ship.drawingY - (squareSize * ship.size);
-          }
-      }*/
+
     if (ship.imageData != null) {
-        if (shipX != 380) {
-            console.log("CENTER: " + centerX + "," + centerY);
-            console.log("POS: " + shipX + "," + shipY);
-        }
         drawingContext.translate(centerX, centerY);
         drawingContext.rotate(ship.heading * ROTATION_RADIANS);
-        drawingContext.translate(-centerX, -centerY);
-        //drawingContext.drawImage(ship.imageData, shipX, shipY);
-        drawingContext.drawImage(ship.imageData, shipX, shipY);
-        drawingContext.translate(centerX, centerY);
-        drawingContext.rotate(-ship.heading * ROTATION_RADIANS);
-        drawingContext.translate(-centerX, -centerY);
+        drawingContext.drawImage(ship.imageData, 0, 0);
+        drawingContext.setTransform();
     }
 }
 
