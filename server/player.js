@@ -10,10 +10,10 @@ class Player {
         this.ships = [];
         this.shots = [];
         if (this.role !== 'observer') {
-       /*     this.ships.push(new Ship("carrier", 5, 1, "carrier.png"));
+            this.ships.push(new Ship("carrier", 5, 1, "carrier.png"));
             this.ships.push(new Ship("destroyer", 4, 2, "destroyer.png"));
             this.ships.push(new Ship("cruiser", 3, 3, "cruiser.png"));
-            this.ships.push(new Ship("submarine", 3, 2, "sub.png"));*/
+            this.ships.push(new Ship("submarine", 3, 2, "sub.png"));
             this.ships.push(new Ship("corvette", 2, 3, "corvette.png"));
         }
     }
