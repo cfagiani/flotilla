@@ -1,3 +1,7 @@
+/**
+ * This class represents a shot that was taken by a player. The shot includes the turn on which it occurred so the
+ * front-end can display the age of the shot.
+ */
 class Shot {
 
     constructor(x, y, isHit, turn) {

@@ -1,6 +1,10 @@
 const Ship = require('./ship')
 const Shot = require('./shot')
 
+/**
+ * Model class representing a player. A player's state consists of the position and state of their ships as well as the
+ * list of their shots.
+ */
 class Player {
     constructor(id, playerNum, role) {
         this.id = id;
@@ -18,10 +22,18 @@ class Player {
         }
     }
 
+    /**
+     * Returns this player's role as a string (either 'player' or 'observer')
+     * @returns
+     */
     getRole() {
         return this.role;
     }
 
+    /**
+     * Returns true if the player has at least 1 ship that has not yet been sunk.
+     * @returns {boolean}
+     */
     hasLiveShips() {
         for (let i = 0; i < this.ships.length; i++) {
             if (!this.ships[i].isSunk()) {
@@ -31,6 +43,11 @@ class Player {
         return false;
     }
 
+    /**
+     * Returns the state object for this player.
+     * @param turnNumber
+     * @returns {{isWinner: boolean, ships: [], num: *, id: *, shots: [], isTurn: boolean}}
+     */
     getState(turnNumber) {
         return {
             id: this.id,
@@ -42,10 +59,24 @@ class Player {
         };
     }
 
+    /**
+     * Gets the playerNumber for the player. For observers, this is undefined.
+     * @returns {*}
+     */
     getPlayerNum() {
         return this.playerNum;
     }
 
+    /**
+     * Processes a shot at the coordinates passed in. This should be called on the 'target' of a shot. If the shot
+     * hit a ship, the hit will be recorded in the corresponding ship objects. After processing the hits, all un-sunk
+     * ships will advance (move).
+     * @param x
+     * @param y
+     * @param turnNumber
+     * @param squareCount
+     * @returns {Shot}
+     */
     shotAt(x, y, turnNumber, squareCount) {
         let shot = new Shot(x, y, false, turnNumber);
         for (let i = 0; i < this.ships.length; i++) {
@@ -59,10 +90,20 @@ class Player {
         return shot;
     }
 
+    /**
+     * Adds a shot to this player's shot collection. This should be called on the "source" of a turn (the shooter).
+     * @param shot
+     */
     addShot(shot) {
         this.shots.push(shot);
     }
 
+    /**
+     * Sets this player to the 'ready' state by updating the ships collection with their initial grid positions and
+     * headings.
+     * @param ships
+     * @param isReady
+     */
     setReady(ships, isReady) {
         // update the x,y position of the ships only; ignore other fields so clients can't manipulate speed/hits
         for (let i = 0; i < ships.length; i++) {
@@ -78,6 +119,10 @@ class Player {
         this.ready = isReady;
     }
 
+    /**
+     * Returns true if this player is in the ready state.
+     * @returns {boolean}
+     */
     isReady() {
         return this.ready;
     }

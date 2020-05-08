@@ -1,6 +1,7 @@
 Flotilla
 ====
 
+#Overview
 This is a naval battle game where two players take turns firing at grid coordinates in an attempt to sink the fleet of their opponent.
 
 The top-most grid displays your ships and the bottom grid shows where you have shot at your opponent. A hit is represented by 
@@ -21,16 +22,25 @@ After each turn, the ships move according to their speed. The ship speeds are:
 
 When a ship reaches the boundary of the board, it will turn around (1 turn) and continue in the opposite direction.
 
-If you fire upon a cell with multiple ships present, ALL ships in that cell will be hit UNLESS one of those ships is a submarine.
-For a submarine to be hit, it must be the only ship in that cell.
+If you fire upon a cell with multiple ships present, ALL ships in that cell will be hit.
 
 
-TODO:
+#####TODO:
 * include attribution for sprites (https://opengameart.org/content/sea-warfare-set-ships-and-more) maybe
 * reset button prior to starting
 * different ordinance types
 * refactor/clean-up code
 * display grid coordinates
 * unit tests
-* submarine special hit condition
+* observation mode
+* multiple game rooms
+* fix disconnect logic
+* add shot & result to the chat log
+
+#####POSSIBLE ENHANCEMENTS
+This section contains ideas for further enhancements for the game. 
+* submarines can only be hit if they're the only thing in a cell
+* "Easy Mode" - disables ship movement
+* music/sound effects
+
 

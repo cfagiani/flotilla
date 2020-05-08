@@ -1,3 +1,6 @@
+/**
+ * This class represents this ship model. Ships track their own position, size, speed and hits.
+ */
 class Ship {
     constructor(name, size, speed, image) {
         this.name = name;
@@ -13,6 +16,10 @@ class Ship {
         }
     }
 
+    /**
+     * Returns true if this ship has been sunk (all positions hit).
+     * @returns {boolean}
+     */
     isSunk() {
         for (let i = 0; i < this.hits.length; i++) {
             if (this.hits[i] === 0) {
@@ -22,6 +29,11 @@ class Ship {
         return true;
     }
 
+    /**
+     * Advances this ship according to its current position, heading, and speed.
+     * @param maxX
+     * @param maxY
+     */
     advance(maxX, maxY) {
         if (this.isSunk()) {
             return;
@@ -57,6 +69,10 @@ class Ship {
         }
     }
 
+    /**
+     * Returns the state object representing this ship.
+     * @returns {{hits: [], image: *, size: *, heading: number, x: number, name: *, y: number, speed: *}}
+     */
     getState() {
         return {
             x: this.x,
@@ -70,6 +86,13 @@ class Ship {
         }
     }
 
+    /**
+     * Returns true if this ship is Hit by a shot at the grid coordinates passed in. A hit is only a hit if that position
+     * within the ship has not yet been hit previously.
+     * @param x
+     * @param y
+     * @returns {boolean}
+     */
     isHit(x, y) {
         let minX = this.x;
         let minY = this.y;

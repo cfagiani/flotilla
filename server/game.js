@@ -1,18 +1,27 @@
 const Player = require('./player')
 const SQUARE_COUNT = 14;
 
+/**
+ * This class represents the overall state of the game. It keeps track of the participants involved
+ * (observers and players). A "Game" object should be constructed for each game "room" launched from the site.
+ *
+ */
 class Game {
     constructor() {
-        this.sockets = {};
         this.participants = {};
         this.turnNumber = 1;
         this.mode = "placement";
         this.players = [null, null];
     }
 
+    /**
+     * Adds a player to the game. If this is among the first 2 players, they are added in the "player" otherwise they're
+     * added as an observer. After adding the player, a stateUpdate event is emitted on the socket for the newly joined
+     * player so the front-end can render the initial game state.
+     * @param socket
+     */
     addPlayer(socket) {
-        let count = Object.keys(this.sockets).length;
-        this.sockets[socket.id] = socket;
+        let count = Object.keys(this.participants).length;
         this.participants[socket.id] = new Player(socket.id, count + 1, count < 2 ? 'player' : 'observer');
         if (count < 2) {
             this.players[count] = this.participants[socket.id];
@@ -20,21 +29,28 @@ class Game {
         socket.emit("stateUpdate", this.getState(socket.id));
     }
 
+    /**
+     * Removes a player from the game.
+     * @param id
+     */
     removePlayer(id) {
-        let sock = this.sockets[id];
-        if (sock !== undefined) {
-            delete this.sockets[id];
-            let player = this.participants[id];
-            if (player !== undefined) {
-                if (player.playerNum <= 2) {
-                    this.players[player.playerNum - 1] = null;
-                }
-                delete this.participants[id];
+        let player = this.participants[id];
+        if (player !== undefined) {
+            if (player.playerNum <= 2) {
+                this.players[player.playerNum - 1] = null;
             }
+            delete this.participants[id];
         }
     }
 
+    /**
+     * Gets the game state for a particular player. If the player is in the 'player' role, the state will only contain
+     * their ships (so they can't cheat and look at the state of their opponent).
+     * @param id
+     * @returns json object containing the game state as visible to the player passed in.
+     */
     getState(id) {
+        // first check if the game mode should be "gameOver" or not
         for (let i in this.participants) {
             if (this.participants[i].getRole() === 'player' && !this.participants[i].hasLiveShips()) {
                 this.mode = 'gameOver';
@@ -50,10 +66,19 @@ class Game {
         }
     }
 
+    /**
+     * Returns the player object identified by the ID passed in.
+     * @param id
+     * @returns {*}
+     */
     getPlayer(id) {
         return this.participants[id];
     }
 
+    /**
+     * Returns the number of players that have reported "ready". Once both players are ready, the game can begin.
+     * @returns {number}
+     */
     getReadyCount() {
         let count = 0;
         for (let i in this.participants) {
@@ -64,6 +89,14 @@ class Game {
         return count;
     }
 
+    /**
+     * Records a turn for a player. This consists of shooting ordinance at grid coordinates and incrementing the turn
+     * number.
+     * @param playerId
+     * @param x
+     * @param y
+     * @param ordinance
+     */
     recordTurn(playerId, x, y, ordinance) {
         let shooter = this.participants[playerId];
         if (shooter !== undefined) {
