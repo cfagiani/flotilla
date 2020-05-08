@@ -5,8 +5,6 @@ const Game = require('./server/game');
 
 const game = new Game();
 
-let squareCount = 14;
-
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/public/index.html');
 });
@@ -39,7 +37,7 @@ io.sockets.on('connection', function (socket) {
     });
     socket.on('ready', function (data) {
         game.getPlayer(socket.id).setReady(data.ships, true);
-        if (game.getReadyCount() == 2) {
+        if (game.getReadyCount() === 2) {
             game.mode = 'play';
             broadcastState();
         }

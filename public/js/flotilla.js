@@ -20,6 +20,10 @@ let currentMessage = ['Place your ships'];
 
 init();
 
+/**
+ * Initializes the game by setting up the board and chat components and registering the listener on the socket for
+ * stateUpdate messages.
+ */
 function init() {
     let socket = io();
     setupBoard(socket);
@@ -62,7 +66,9 @@ function init() {
     });
 }
 
-
+/**
+ * Draws everything to the canvas.
+ */
 function draw() {
     let canvasElement = document.getElementById("gameCanvas");
     let drawingContext = canvasElement.getContext("2d");
@@ -76,7 +82,11 @@ function draw() {
 
 }
 
-
+/**
+ * Draws the "ready" button if the player has placed all of their ships. Once this button is clicked, it will send the
+ * ready event to the server and the player will no longer be able to reposition their ships.
+ * @param drawingContext
+ */
 function drawButton(drawingContext) {
     if (state.mode === "placement" && allShipsPlaced()) {
 
@@ -103,6 +113,10 @@ function drawButton(drawingContext) {
     }
 }
 
+/**
+ * Returns true if all the players ships have been placed on the grid.
+ * @returns {boolean}
+ */
 function allShipsPlaced() {
     for (let i = 0; i < state.playerState.ships.length; i++) {
         if (state.playerState.ships[i].x < 0 || state.playerState.ships[i].y < 0) {
@@ -112,6 +126,10 @@ function allShipsPlaced() {
     return true;
 }
 
+/**
+ * Sets up the chat socket so it can updated when we get message events on the websocket.
+ * @param socket
+ */
 function setupChat(socket) {
     let chatText = document.getElementById('chatText');
     let chatInput = document.getElementById('chatInput');
@@ -128,6 +146,12 @@ function setupChat(socket) {
     }
 }
 
+/**
+ * Sets up the board by registering the required event listeners on the canvas object. We capture mouse events (clicks,
+ * double-clicks, mouse up/down events and mouse move events) so we can move ships during placement and record shots
+ * during the play mode.
+ * @param socket
+ */
 function setupBoard(socket) {
     let canvasElement = document.getElementById("gameCanvas");
     HEIGHT = canvasElement.height;
@@ -215,6 +239,12 @@ function setupBoard(socket) {
     });
 }
 
+/**
+ * Returns true if the ship passed in is entirely within the grid (since it is illegal to have an initial position
+ * that is off the grid).
+ * @param ship
+ * @returns {boolean}
+ */
 function isFullyOnGrid(ship) {
     let maxX = (squareSize * squareCount);
     let maxY = (squareSize * squareCount);
@@ -250,6 +280,11 @@ function isFullyOnGrid(ship) {
     return false;
 }
 
+/**
+ * Gets the Ship (if any) that was clicked.
+ * @param event
+ * @returns {null}
+ */
 function getClickedShip(event) {
     let clickX = event.pageX - canvasLeft;
     let clickY = event.pageY - canvasTop;
@@ -284,6 +319,10 @@ function getClickedShip(event) {
     return null;
 }
 
+/**
+ * Draws the current message to the canvas. The currentMessage is an array and each line is drawn on its own line.
+ * @param drawingContext
+ */
 function drawMessage(drawingContext) {
     if (currentMessage != null) {
         drawingContext.font = "22px Arial";
@@ -294,6 +333,10 @@ function drawMessage(drawingContext) {
     }
 }
 
+/**
+ * Draws all ships for a player.
+ * @param drawingContext
+ */
 function drawShips(drawingContext) {
     if (state.playerState != null) {
         for (let idx = 0; idx < state.playerState.ships.length; idx++) {
@@ -302,6 +345,11 @@ function drawShips(drawingContext) {
     }
 }
 
+/**
+ * Draws a single ship onto the ship grid (top grid).
+ * @param ship
+ * @param drawingContext
+ */
 function drawShip(ship, drawingContext) {
     let shipY = ship.drawingY;
     let shipX = ship.drawingX;
@@ -338,6 +386,11 @@ function drawShip(ship, drawingContext) {
     }
 }
 
+/**
+ * Draws the players shots on the bottom grid. Shots are either hits (red) or missed (white) and have an age (turns since
+ * the shot was fired).
+ * @param drawingContext
+ */
 function drawShots(drawingContext) {
     if (state.playerState != null) {
         for (let i = 0; i < state.playerState.shots.length; i++) {
@@ -357,6 +410,10 @@ function drawShots(drawingContext) {
     }
 }
 
+/**
+ * Draws the hits onto the top (ship) grid. Hits represent which of the player's ships have been hit so far.
+ * @param drawingContext
+ */
 function drawHits(drawingContext) {
     if (state.playerState != null) {
         for (let i = 0; i < state.playerState.ships.length; i++) {
@@ -391,11 +448,23 @@ function drawHits(drawingContext) {
     }
 }
 
+/**
+ * Draws both ship grids.
+ * @param drawingContext
+ */
 function drawBoard(drawingContext) {
     drawGrid(0, squareSize, squareCount, drawingContext);
     drawGrid(BOTTOM_GRID_TOP, squareSize, squareCount, drawingContext);
 }
 
+
+/**
+ * Draws the ship grid starting at the Y position passed in.
+ * @param startY
+ * @param size
+ * @param count
+ * @param drawingContext
+ */
 function drawGrid(startY, size, count, drawingContext) {
     drawingContext.fillStyle = "blue";
     drawingContext.fillRect(0, startY, size * count, size * count)
@@ -411,6 +480,13 @@ function drawGrid(startY, size, count, drawingContext) {
 }
 
 
+/**
+ * Translates a grid coordinate to a drawing coordinate with the canvas. The offset is used to pad the start position
+ * so we can use this function to get drawing coordinates for grid coordinates in either the top or bottom grid.
+ * @param gridCoord
+ * @param offset
+ * @returns {*}
+ */
 function toDrawingCoordinate(gridCoord, offset) {
     return ((gridCoord - 1) * squareSize) + offset;
 }
