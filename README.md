@@ -29,7 +29,6 @@ TODO:
 * include attribution for sprites (https://opengameart.org/content/sea-warfare-set-ships-and-more) maybe
 * reset button prior to starting
 * different ordinance types
-* ship movement
 * refactor/clean-up code
 * display grid coordinates
 * unit tests

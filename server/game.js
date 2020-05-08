@@ -35,6 +35,13 @@ class Game {
     }
 
     getState(id) {
+        for (let i in this.participants) {
+            if (this.participants[i].getRole() === 'player' && !this.participants[i].hasLiveShips()) {
+                this.mode = 'gameOver';
+                break;
+            }
+        }
+
         return {
             turnNumber: this.turnNumber,
             mode: this.mode,

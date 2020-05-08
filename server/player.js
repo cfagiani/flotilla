@@ -10,12 +10,25 @@ class Player {
         this.ships = [];
         this.shots = [];
         if (this.role !== 'observer') {
-            this.ships.push(new Ship("carrier", 5, 1, "carrier.png"));
+       /*     this.ships.push(new Ship("carrier", 5, 1, "carrier.png"));
             this.ships.push(new Ship("destroyer", 4, 2, "destroyer.png"));
             this.ships.push(new Ship("cruiser", 3, 3, "cruiser.png"));
-            this.ships.push(new Ship("submarine", 3, 2, "sub.png"));
+            this.ships.push(new Ship("submarine", 3, 2, "sub.png"));*/
             this.ships.push(new Ship("corvette", 2, 3, "corvette.png"));
         }
+    }
+
+    getRole() {
+        return this.role;
+    }
+
+    hasLiveShips() {
+        for (let i = 0; i < this.ships.length; i++) {
+            if (!this.ships[i].isSunk()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     getState(turnNumber) {
@@ -24,7 +37,8 @@ class Player {
             ships: this.ships,
             shots: this.shots,
             num: this.playerNum,
-            isTurn: this.playerNum === 1 ? turnNumber % 2 === 1 : turnNumber % 2 === 0
+            isTurn: this.playerNum === 1 ? turnNumber % 2 === 1 : turnNumber % 2 === 0,
+            isWinner: this.hasLiveShips()
         };
     }
 

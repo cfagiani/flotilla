@@ -47,7 +47,6 @@ io.sockets.on('connection', function (socket) {
 
     socket.on('takeTurn', function (data) {
         game.recordTurn(data.playerId, data.x, data.y, data.ordinance);
-        //TODO: check for game over
         broadcastState();
     });
 });

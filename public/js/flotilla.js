@@ -16,6 +16,7 @@ let buttonWidth = 80;
 let buttonHeight = 40;
 let buttonY = 0;
 let SHIP_IMAGES = {};
+let currentMessage = ['Place your ships'];
 
 init();
 
@@ -30,6 +31,7 @@ function init() {
         buttonY = (squareSize - 1) * squareCount;
         mode = data.mode;
         if (mode === 'placement' && data.playerState != null) {
+            currentMessage = ['Place your ships'];
             canDrag = true;
             for (let i = 0; i < data.playerState.ships.length; i++) {
                 data.playerState.ships[i].drawingX = CONTROL_X;
@@ -42,9 +44,20 @@ function init() {
                 img.src = "img/" + data.playerState.ships[i].image;
             }
         } else if (mode === 'play') {
-            //TODO: display either 'take turn' or 'waiting for opponent' message
+            if (state.playerState != null && state.playerState.isTurn) {
+                currentMessage = ['Click to shoot'];
+            } else {
+                currentMessage = ['Waiting for opponent'];
+            }
             draw();
             canDrag = false;
+        } else if (mode === 'gameOver') {
+            if (state.playerState != null && state.playerState.isWinner) {
+                currentMessage = ["Game Over", " You Win!"];
+            } else {
+                currentMessage = ["Game Over", " You Lose."];
+            }
+            draw();
         }
     });
 }
@@ -120,14 +133,13 @@ function setupBoard(socket) {
     HEIGHT = canvasElement.height;
     WIDTH = canvasElement.width;
     canvasElement.addEventListener('click', function (event) {
-        if (state.playerState != null && state.playerState.isTurn) {
+        if (state.playerState != null && state.playerState.isTurn && state.mode === 'play') {
             canvasLeft = canvasElement.offsetLeft + canvasElement.clientLeft;
             canvasTop = canvasElement.offsetTop + canvasElement.clientTop;
 
             let x = Math.floor(((event.pageX - canvasLeft) / squareSize)) + 1;
             let y = Math.floor(((event.pageY - canvasTop - BOTTOM_GRID_TOP) / squareSize)) + 1;
             if (x <= squareCount && y >= 0 && y <= squareCount) {
-                console.log(x + ", " + y);
                 //TODO get selected ordinance
                 socket.emit('takeTurn', {playerId: state.playerState.id, x: x, y: y, ordinance: 'shell'});
             }
@@ -182,9 +194,9 @@ function setupBoard(socket) {
             // if Ready button was pressed, submit state to server
             socket.emit("ready", state.playerState);
             // no more ship movement allowed
+            currentMessage = ['Waiting for opponent'];
             canDrag = false;
             buttonPressed = false;
-            //TODO: display "waiting for opponent" until we get the play message
         }
 
         draggingShip = null;
@@ -273,7 +285,13 @@ function getClickedShip(event) {
 }
 
 function drawMessage(drawingContext) {
-
+    if (currentMessage != null) {
+        drawingContext.font = "22px Arial";
+        drawingContext.fillStyle = "black";
+        for (let i = 0; i < currentMessage.length; i++) {
+            drawingContext.fillText(currentMessage[i], (squareSize * squareCount) + 10, BOTTOM_GRID_TOP + ((2 + (i + 1)) * squareSize));
+        }
+    }
 }
 
 function drawShips(drawingContext) {
