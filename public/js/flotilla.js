@@ -27,6 +27,7 @@ init();
  */
 function init() {
     let socket = io();
+    socket.emit('join', window.location.href);
     setupBoard(socket);
     setupChat(socket);
     socket.on('stateUpdate', function (data) {
@@ -48,7 +49,7 @@ function init() {
                     SHIP_IMAGES[data.playerState.ships[i].name] = img;
                     draw();
                 });
-                img.src = "img/" + data.playerState.ships[i].image;
+                img.src = "/img/" + data.playerState.ships[i].image;
             }
         } else if (mode === 'play') {
             if (state.playerState != null && state.playerState.isTurn) {

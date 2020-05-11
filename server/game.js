@@ -14,6 +14,18 @@ class Game {
         this.players = [null, null];
     }
 
+    broadcastChat(message) {
+        for (let id in this.participants) {
+            this.participants[id].socket.emit('addToChat', message);
+        }
+    }
+
+    broadcastState() {
+        for (let id in this.participants) {
+            this.participants[id].socket.emit('stateUpdate', this.getState(id));
+        }
+    }
+
     /**
      * Adds a player to the game. If this is among the first 2 players, they are added in the "player" otherwise they're
      * added as an observer. After adding the player, a stateUpdate event is emitted on the socket for the newly joined

@@ -32,7 +32,6 @@ If you fire upon a cell with multiple ships present, ALL ships in that cell will
 * display grid coordinates
 * unit tests
 * observation mode
-* multiple game rooms
 
 #####POSSIBLE ENHANCEMENTS
 This section contains ideas for further enhancements for the game. 
