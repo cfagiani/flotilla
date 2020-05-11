@@ -22,7 +22,7 @@ class Game {
      */
     addPlayer(socket) {
         let count = Object.keys(this.participants).length;
-        let player = new Player(socket.id, count + 1, count < 2 ? 'player' : 'observer');
+        let player = new Player(socket.id, socket, count + 1, count < 2 ? 'player' : 'observer');
         this.participants[socket.id] = player;
         if (count < 2) {
             this.players[count] = this.participants[socket.id];
@@ -37,11 +37,33 @@ class Game {
      */
     removePlayer(id) {
         let player = this.participants[id];
+        let wasPlayer = false;
         if (player !== undefined) {
             if (player.playerNum <= 2) {
                 this.players[player.playerNum - 1] = null;
+                wasPlayer = true;
             }
             delete this.participants[id];
+        }
+        return wasPlayer
+    }
+
+    /**
+     * Resets the game state. If there are observers connected, two of them will become players.
+     */
+    reset() {
+        this.mode = 'placement';
+        this.players = [];
+        let count = 0;
+        for (let id in this.participants) {
+            let oldPlayer = this.getPlayer(id);
+            let player = new Player(id, oldPlayer.socket, count + 1, count < 2 ? 'player' : 'observer');
+            this.participants[id] = player;
+            if (count < 2) {
+                this.players[count] = this.participants[id];
+            }
+            count++;
+            player.socket.emit("stateUpdate", this.getState(id));
         }
     }
 

@@ -6,8 +6,9 @@ const Shot = require('./shot')
  * list of their shots.
  */
 class Player {
-    constructor(id, playerNum, role) {
+    constructor(id,socket, playerNum, role) {
         this.id = id;
+        this.socket = socket;
         this.playerNum = playerNum;
         this.role = role;
         this.ready = false;

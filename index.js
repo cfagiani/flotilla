@@ -30,7 +30,12 @@ io.sockets.on('connection', function (socket) {
         let name = "User " + game.getPlayer(socket.id).getPlayerNum();
         broadcastChat(name + " left");
         delete ALL_SOCKETS[socket.id];
-        game.removePlayer(socket.id);
+        let wasPlayer = game.removePlayer(socket.id);
+        if (wasPlayer){
+            broadcastChat('Only 1 player. Game resetting');
+            game.mode = 'placement';
+            game.reset();
+        }
     });
 
     socket.on('sendMsgToServer', function (data) {
@@ -51,7 +56,7 @@ io.sockets.on('connection', function (socket) {
     socket.on('takeTurn', function (data) {
         result = game.recordTurn(data.playerId, data.x, data.y, data.ordinance.toLowerCase());
         if (result['shooter'] !== undefined) {
-            let message = 'User ' + result['shooter'] + ' fired a ' + data.ordinance + ' at ' + data.x + ',' + data.y + ' ' + result['message'];
+            let message = 'User ' + result['shooter'] + ' fired a ' + data.ordinance + ' at ' + data.x + ',' + data.y + result['message'];
             broadcastChat(message);
         }
         broadcastState();

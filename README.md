@@ -33,7 +33,6 @@ If you fire upon a cell with multiple ships present, ALL ships in that cell will
 * unit tests
 * observation mode
 * multiple game rooms
-* fix disconnect logic
 
 #####POSSIBLE ENHANCEMENTS
 This section contains ideas for further enhancements for the game. 
