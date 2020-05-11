@@ -22,11 +22,13 @@ class Game {
      */
     addPlayer(socket) {
         let count = Object.keys(this.participants).length;
-        this.participants[socket.id] = new Player(socket.id, count + 1, count < 2 ? 'player' : 'observer');
+        let player = new Player(socket.id, count + 1, count < 2 ? 'player' : 'observer');
+        this.participants[socket.id] = player;
         if (count < 2) {
             this.players[count] = this.participants[socket.id];
         }
         socket.emit("stateUpdate", this.getState(socket.id));
+        return player;
     }
 
     /**
@@ -99,6 +101,7 @@ class Game {
      */
     recordTurn(playerId, x, y, ordinance) {
         let shooter = this.participants[playerId];
+        let result = {};
         if (shooter !== undefined) {
             let otherPlayer = null;
             if (shooter.playerNum === 1) {
@@ -110,19 +113,28 @@ class Game {
             if (shooter.depletedOrdinance.includes(ordinance)) {
                 console.log('Detected cheating attempt. Player ' + shooter.id +
                     ' tried to re-use depleted ordinance ' + ordinance);
-                return;
+                return result;
             }
+            result['shooter'] = shooter.getPlayerNum();
             switch (ordinance) {
                 case 'missile':
+                    let misses = 0;
+                    let hits = 0;
                     for (let i = -1; i < 2; i++) {
                         for (let j = -1; j < 2; j++) {
                             let shot = otherPlayer.shotAt(x + i, y + j, true, this.turnNumber, SQUARE_COUNT)
                             if (shot != null) {
+                                if (shot.isHit) {
+                                    hits++;
+                                } else {
+                                    misses++;
+                                }
                                 // we get null back if the shot was out of bounds; don't push those to the history list
                                 shooter.addShot(shot, ordinance);
                             }
                         }
                     }
+                    result['message'] = ": " + hits + " hits and " + misses + " misses";
                     otherPlayer.advanceShips(SQUARE_COUNT);
                     break;
                 case 'drone':
@@ -139,12 +151,15 @@ class Game {
                     shooter.setIntel(intel);
                     break;
                 case 'shell':
-                    shooter.addShot(otherPlayer.shotAt(x, y, true, this.turnNumber, SQUARE_COUNT), ordinance);
+                    let shot = otherPlayer.shotAt(x, y, true, this.turnNumber, SQUARE_COUNT);
+                    shooter.addShot(shot, ordinance);
+                    result['message'] = shot.isHit ? ': hit' : ': miss';
                     otherPlayer.advanceShips(SQUARE_COUNT);
                     break;
             }
             this.turnNumber++;
         }
+        return result;
     }
 }
 

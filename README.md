@@ -34,7 +34,6 @@ If you fire upon a cell with multiple ships present, ALL ships in that cell will
 * observation mode
 * multiple game rooms
 * fix disconnect logic
-* add shot & result to the chat log
 
 #####POSSIBLE ENHANCEMENTS
 This section contains ideas for further enhancements for the game. 

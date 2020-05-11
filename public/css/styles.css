@@ -1,4 +1,10 @@
+div {
+    font-size: small;
+}
 
+legend{
+    font-size: medium;
+}
 .panel {
     border: 1px solid #000000;
 }

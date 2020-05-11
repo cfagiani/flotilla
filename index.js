@@ -22,21 +22,26 @@ io.sockets.on('connection', function (socket) {
     socket.id = Math.random();
     ALL_SOCKETS[socket.id] = socket;
 
-    game.addPlayer(socket);
+    let player = game.addPlayer(socket);
+    let name = "User " + player.getPlayerNum();
+    broadcastChat(name + " joined");
 
     socket.on('disconnect', function () {
+        let name = "User " + game.getPlayer(socket.id).getPlayerNum();
+        broadcastChat(name + " left");
         delete ALL_SOCKETS[socket.id];
         game.removePlayer(socket.id);
     });
 
     socket.on('sendMsgToServer', function (data) {
         let name = "User " + game.getPlayer(socket.id).getPlayerNum();
-        for (let i in ALL_SOCKETS) {
-            ALL_SOCKETS[i].emit('addToChat', name + ": " + data);
-        }
+        broadcastChat(name + ": " + data);
+
     });
     socket.on('ready', function (data) {
-        game.getPlayer(socket.id).setReady(data.ships, true);
+        let player = game.getPlayer(socket.id);
+        player.setReady(data.ships, true);
+        broadcastChat("User " + player.getPlayerNum() + " is ready.");
         if (game.getReadyCount() === 2) {
             game.mode = 'play';
             broadcastState();
@@ -44,10 +49,20 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('takeTurn', function (data) {
-        game.recordTurn(data.playerId, data.x, data.y, data.ordinance.toLowerCase());
+        result = game.recordTurn(data.playerId, data.x, data.y, data.ordinance.toLowerCase());
+        if (result['shooter'] !== undefined) {
+            let message = 'User ' + result['shooter'] + ' fired a ' + data.ordinance + ' at ' + data.x + ',' + data.y + ' ' + result['message'];
+            broadcastChat(message);
+        }
         broadcastState();
     });
 });
+
+function broadcastChat(message) {
+    for (let i in ALL_SOCKETS) {
+        ALL_SOCKETS[i].emit('addToChat', message);
+    }
+}
 
 function broadcastState() {
     for (let i in ALL_SOCKETS) {
