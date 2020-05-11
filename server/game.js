@@ -116,19 +116,33 @@ class Game {
                 case 'missile':
                     for (let i = -1; i < 2; i++) {
                         for (let j = -1; j < 2; j++) {
-                            let shot = otherPlayer.shotAt(x + i, y + j, this.turnNumber, SQUARE_COUNT)
+                            let shot = otherPlayer.shotAt(x + i, y + j, true, this.turnNumber, SQUARE_COUNT)
                             if (shot != null) {
                                 // we get null back if the shot was out of bounds; don't push those to the history list
                                 shooter.addShot(shot, ordinance);
                             }
                         }
                     }
+                    otherPlayer.advanceShips(SQUARE_COUNT);
+                    break;
+                case 'drone':
+                    let intel = [];
+                    otherPlayer.advanceShips(SQUARE_COUNT);
+                    for (let i = -2; i < 3; i++) {
+                        for (let j = -2; j < 3; j++) {
+                            let shot = otherPlayer.shotAt(x + i, y + j, false, this.turnNumber, SQUARE_COUNT)
+                            if (shot != null) {
+                                intel.push(shot);
+                            }
+                        }
+                    }
+                    shooter.setIntel(intel);
                     break;
                 case 'shell':
-                    shooter.addShot(otherPlayer.shotAt(x, y, this.turnNumber, SQUARE_COUNT), ordinance);
+                    shooter.addShot(otherPlayer.shotAt(x, y, true, this.turnNumber, SQUARE_COUNT), ordinance);
+                    otherPlayer.advanceShips(SQUARE_COUNT);
                     break;
             }
-            otherPlayer.advanceShips(SQUARE_COUNT);
             this.turnNumber++;
         }
     }

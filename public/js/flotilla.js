@@ -17,6 +17,7 @@ let buttonHeight = 40;
 let buttonY = 0;
 let SHIP_IMAGES = {};
 let currentMessage = ['Place your ships'];
+let ALPHA_FACTOR = 0.2;
 
 init();
 
@@ -80,6 +81,7 @@ function draw() {
     drawShips(drawingContext);
     drawShots(drawingContext);
     drawHits(drawingContext);
+    drawIntel(drawingContext);
     drawMessage(drawingContext);
     drawButton(drawingContext);
 
@@ -415,6 +417,34 @@ function drawShots(drawingContext) {
             drawingContext.fillText("" + Math.floor((state.turnNumber - shot.turnNumber) / 2), x + 8, y + 10);
         }
     }
+}
+
+/**
+ * Renders ship "intel" (results of using a drone) to the players shot grid if present. Intel fades with time.
+ * @param drawingContext
+ */
+function drawIntel(drawingContext) {
+    if (state.playerState == null || state.playerState.intel === undefined || state.playerState.intel.length === 0) {
+        return;
+    }
+    for (let i = 0; i < state.playerState.intel.length; i++) {
+        let shot = state.playerState.intel[i];
+        let color = 'MintCream';
+        if (shot.isHit) {
+            color = 'red';
+        }
+        let age = Math.floor((state.turnNumber - shot.turnNumber) / 2);
+        if (age <= 3) {
+            drawingContext.globalAlpha = Math.max(0.8 - (ALPHA_FACTOR * age), 0.2);
+            drawingContext.fillStyle = color;
+            let x = toDrawingCoordinate(shot.x, 0);
+            let y = toDrawingCoordinate(shot.y, BOTTOM_GRID_TOP);
+            drawingContext.fillRect(x, y, squareSize, squareSize);
+        }
+
+    }
+    //reset alpha
+    drawingContext.globalAlpha = 1;
 }
 
 /**

@@ -91,9 +91,10 @@ class Ship {
      * within the ship has not yet been hit previously.
      * @param x
      * @param y
+     * @param markHit
      * @returns {boolean}
      */
-    isHit(x, y) {
+    isHit(x, y, markHit) {
         let minX = this.x;
         let minY = this.y;
         let maxX = this.x;
@@ -122,7 +123,9 @@ class Ship {
         if (x >= minX && x <= maxX && y >= minY && y <= maxY) {
             //it was a hit,now check the hits array
             if (this.hits[hitIndex] === 0) {
-                this.hits[hitIndex] = 1;
+                if (markHit) {
+                    this.hits[hitIndex] = 1;
+                }
                 return true;
             }
         }

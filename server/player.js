@@ -13,6 +13,7 @@ class Player {
         this.ready = false;
         this.depletedOrdinance = [];
         this.ships = [];
+        this.intel = [];
         this.shots = [];
         if (this.role !== 'observer') {
             this.ships.push(new Ship("carrier", 5, 1, "carrier.png"));
@@ -55,6 +56,7 @@ class Player {
             ships: this.ships,
             shots: this.shots,
             num: this.playerNum,
+            intel: this.intel,
             depletedOrdinance: this.depletedOrdinance,
             isTurn: this.playerNum === 1 ? turnNumber % 2 === 1 : turnNumber % 2 === 0,
             isWinner: this.hasLiveShips()
@@ -74,11 +76,12 @@ class Player {
      * hit a ship, the hit will be recorded in the corresponding ship objects.
      * @param x
      * @param y
+     * @param liveAmmo
      * @param turnNumber
      * @param squareCount
      * @returns {Shot}
      */
-    shotAt(x, y, turnNumber, squareCount) {
+    shotAt(x, y, liveAmmo, turnNumber, squareCount) {
         if (x <= 0 || x > squareCount || y <= 0 || y > squareCount) {
             // the shot is out of bounds. Do nothing.
             return null;
@@ -87,7 +90,7 @@ class Player {
         for (let i = 0; i < this.ships.length; i++) {
             let ship = this.ships[i];
             // check if the shot is within the ship
-            if (ship.isHit(x, y)) {
+            if (ship.isHit(x, y, liveAmmo)) {
                 shot.setHit();
             }
         }
@@ -143,6 +146,13 @@ class Player {
      */
     isReady() {
         return this.ready;
+    }
+
+    setIntel(intel) {
+        if (this.intel !== undefined && this.intel.length > 0) {
+            this.depletedOrdinance.push('drone');
+        }
+        this.intel = intel;
     }
 }
 
