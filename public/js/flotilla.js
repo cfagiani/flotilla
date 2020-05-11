@@ -411,10 +411,20 @@ function drawShots(drawingContext) {
             drawingContext.fillStyle = color;
             let x = toDrawingCoordinate(shot.x, 0);
             let y = toDrawingCoordinate(shot.y, BOTTOM_GRID_TOP);
-            drawingContext.fillRect(x, y, squareSize, squareSize);
-            drawingContext.font = "12px Arial";
+            drawingContext.fillRect(x + 2, y + 2, squareSize - 4, squareSize - 4);
+            drawingContext.font = "11px Arial";
             drawingContext.fillStyle = "black";
-            drawingContext.fillText("" + Math.floor((state.turnNumber - shot.turnNumber) / 2), x + 8, y + 10);
+            let val = Math.floor((state.turnNumber - shot.turnNumber) / 2);
+            let hOffset = x + 8;
+            if (val >= 10) {
+                hOffset = x + 4;
+            }
+            if (val >= 100) {
+                hOffset = x + 2;
+                drawingContext.font = "8px Arial";
+            }
+            drawingContext.fillText("" + val, hOffset, y + 14)
+            ;
         }
     }
 }
