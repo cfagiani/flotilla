@@ -35,6 +35,8 @@ function init() {
         buttonY = (squareSize - 1) * squareCount;
         mode = data.mode;
         if (mode === 'placement' && data.playerState != null) {
+            // reset the ordinance to defaults
+            updateOrdinance(null);
             currentMessage = ['Place your ships'];
             canDrag = true;
             for (let i = 0; i < data.playerState.ships.length; i++) {
@@ -497,6 +499,10 @@ function toDrawingCoordinate(gridCoord, offset) {
 }
 
 
+/**
+ * Gets the selected ordinance from the control.
+ * @returns {string|null}
+ */
 function getSelectedOrdinance() {
     let radio = document.getElementsByName("ordinance");
     for (let i = 0; i < radio.length; i++) {
@@ -508,10 +514,15 @@ function getSelectedOrdinance() {
 }
 
 
+/**
+ * Updates the ordinance selector based on the player state. Ordinance that has been depleted is disabled so it can no
+ * longer be selected.
+ * @param playerState
+ */
 function updateOrdinance(playerState) {
     let radio = document.getElementsByName("ordinance");
-    for (let i = 0; i < radio.length; i++) {
-        if (playerState.depletedOrdinance !== undefined) {
+    if (playerState != null && playerState.depletedOrdinance !== undefined && playerState.depletedOrdinance.length > 0) {
+        for (let i = 0; i < radio.length; i++) {
             for (let j = 0; j < playerState.depletedOrdinance.length; j++) {
                 if (radio[i].value.toLowerCase() === "shell") {
                     radio[i].checked = true;
@@ -520,6 +531,14 @@ function updateOrdinance(playerState) {
                     radio[i].disabled = true;
                 }
             }
+        }
+    } else {
+        // when there is no state, reset things to the default
+        for (let i = 0; i < radio.length; i++) {
+            if (radio[i].value.toLowerCase() === "shell") {
+                radio[i].checked = true;
+            }
+            radio[i].disabled = false;
         }
     }
 }

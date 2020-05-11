@@ -106,6 +106,12 @@ class Game {
             } else {
                 otherPlayer = this.players[0];
             }
+            // make sure the player isn't trying to use ordinance that is already depleted.
+            if (shooter.depletedOrdinance.includes(ordinance)) {
+                console.log('Detected cheating attempt. Player ' + shooter.id +
+                    ' tried to re-use depleted ordinance ' + ordinance);
+                return;
+            }
             switch (ordinance) {
                 case 'missile':
                     for (let i = -1; i < 2; i++) {

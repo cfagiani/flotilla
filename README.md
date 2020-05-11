@@ -34,7 +34,9 @@ If you fire upon a cell with multiple ships present, ALL ships in that cell will
 * unit tests
 * observation mode
 * multiple game rooms
+* reduce size of shot squares by few px on all sides so grid remains visible
 * fix disconnect logic
+* better age text on shot squares
 * add shot & result to the chat log
 
 #####POSSIBLE ENHANCEMENTS
