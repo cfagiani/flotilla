@@ -53,6 +53,7 @@ function init() {
             } else {
                 currentMessage = ['Waiting for opponent'];
             }
+            updateOrdinance(state.playerState);
             draw();
             canDrag = false;
         } else if (mode === 'gameOver') {
@@ -164,8 +165,12 @@ function setupBoard(socket) {
             let x = Math.floor(((event.pageX - canvasLeft) / squareSize)) + 1;
             let y = Math.floor(((event.pageY - canvasTop - BOTTOM_GRID_TOP) / squareSize)) + 1;
             if (x <= squareCount && y >= 0 && y <= squareCount) {
-                //TODO get selected ordinance
-                socket.emit('takeTurn', {playerId: state.playerState.id, x: x, y: y, ordinance: 'shell'});
+                socket.emit('takeTurn', {
+                    playerId: state.playerState.id,
+                    x: x,
+                    y: y,
+                    ordinance: getSelectedOrdinance()
+                });
             }
         }
     }, false);
@@ -491,3 +496,30 @@ function toDrawingCoordinate(gridCoord, offset) {
     return ((gridCoord - 1) * squareSize) + offset;
 }
 
+
+function getSelectedOrdinance() {
+    let radio = document.getElementsByName("ordinance");
+    for (let i = 0; i < radio.length; i++) {
+        if (radio[i].checked) {
+            return radio[i].value.toLowerCase();
+        }
+    }
+    return null;
+}
+
+
+function updateOrdinance(playerState) {
+    let radio = document.getElementsByName("ordinance");
+    for (let i = 0; i < radio.length; i++) {
+        if (playerState.depletedOrdinance !== undefined) {
+            for (let j = 0; j < playerState.depletedOrdinance.length; j++) {
+                if (radio[i].value.toLowerCase() === "shell") {
+                    radio[i].checked = true;
+                }
+                if (radio[i].value.toLowerCase() === playerState.depletedOrdinance[j].toLowerCase()) {
+                    radio[i].disabled = true;
+                }
+            }
+        }
+    }
+}

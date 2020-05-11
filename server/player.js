@@ -11,6 +11,7 @@ class Player {
         this.playerNum = playerNum;
         this.role = role;
         this.ready = false;
+        this.depletedOrdinance = [];
         this.ships = [];
         this.shots = [];
         if (this.role !== 'observer') {
@@ -54,6 +55,7 @@ class Player {
             ships: this.ships,
             shots: this.shots,
             num: this.playerNum,
+            depletedOrdinance: this.depletedOrdinance,
             isTurn: this.playerNum === 1 ? turnNumber % 2 === 1 : turnNumber % 2 === 0,
             isWinner: this.hasLiveShips()
         };
@@ -69,8 +71,7 @@ class Player {
 
     /**
      * Processes a shot at the coordinates passed in. This should be called on the 'target' of a shot. If the shot
-     * hit a ship, the hit will be recorded in the corresponding ship objects. After processing the hits, all un-sunk
-     * ships will advance (move).
+     * hit a ship, the hit will be recorded in the corresponding ship objects.
      * @param x
      * @param y
      * @param turnNumber
@@ -78,6 +79,10 @@ class Player {
      * @returns {Shot}
      */
     shotAt(x, y, turnNumber, squareCount) {
+        if (x <= 0 || x > squareCount || y <= 0 || y > squareCount) {
+            // the shot is out of bounds. Do nothing.
+            return null;
+        }
         let shot = new Shot(x, y, false, turnNumber);
         for (let i = 0; i < this.ships.length; i++) {
             let ship = this.ships[i];
@@ -85,16 +90,29 @@ class Player {
             if (ship.isHit(x, y)) {
                 shot.setHit();
             }
-            ship.advance(squareCount, squareCount);
         }
         return shot;
     }
 
     /**
+     * Advances all the ships (if they have not yet been sunk) according to their current position and speed.
+     * @param squareCount
+     */
+    advanceShips(squareCount) {
+        for (let i = 0; i < this.ships.length; i++) {
+            this.ships[i].advance(squareCount, squareCount);
+        }
+    }
+
+    /**
      * Adds a shot to this player's shot collection. This should be called on the "source" of a turn (the shooter).
      * @param shot
+     * @param ordinance
      */
-    addShot(shot) {
+    addShot(shot, ordinance) {
+        if (ordinance === "drone" || ordinance === "missile") {
+            this.depletedOrdinance.push(ordinance);
+        }
         this.shots.push(shot);
     }
 

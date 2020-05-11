@@ -34,3 +34,7 @@
     grid-template-columns: 1fr 1fr;
     grid-gap: 10px;
 }
+
+input[type=radio]:disabled + label {
+    text-decoration: line-through;
+}
