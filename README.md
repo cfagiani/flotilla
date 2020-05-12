@@ -32,11 +32,16 @@ If you fire upon a cell with multiple ships present, ALL ships in that cell will
 * play again button(s) (same players vs random pairing)
 * unit tests
 * dockerfile for running (ensure NODE_ENV env var set to production)
+* ready button should disappear after click
+* make chat window auto-scroll to bottom if scroll bar is at bottom
+* include heading in intel
+* fix singular/plural in hit/miss chat message
 
 #####POSSIBLE ENHANCEMENTS
 This section contains ideas for further enhancements for the game. 
 * submarines can only be hit if they're the only thing in a cell
 * "Easy Mode" - disables ship movement
 * music/sound effects
+* prevent second connection from same user (to prevent acting as an observer on own game)
 * better room assignment - if there is a room with 1 player, ensure next random assignment is to that room
 

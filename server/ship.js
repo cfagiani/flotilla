@@ -16,6 +16,10 @@ class Ship {
         }
     }
 
+    getName() {
+        return this.name;
+    }
+
     /**
      * Returns true if this ship has been sunk (all positions hit).
      * @returns {boolean}

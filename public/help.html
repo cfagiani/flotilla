@@ -101,7 +101,11 @@
     target. The grid squares affected by the shot will be colored red if it was a hit and white if it was a miss. Each
     shot square will also contain a number. This is the number of turns since that shot was fired. Since ships move, a
     cell that was a miss could become a hit at a
-    later time (or vice versa) so a player may have to fire at the same space more than once.</p>
+    later time (or vice versa) so a player may have to fire at the same space more than once. If the cell that was fired
+    upon was a miss but it was a hit on some prior turn, the cell will be colored pink.</p>
+<p>As a player's ships are hit, a red square will be shown on top of the ship where it was hit. Once all positions of a
+    ship have been hit, it is sunk. Sunk ships remain on the board but no longer move. Hitting a ship in a position that
+    was already hit (regardless of whether it has been sunk) will always be scored as a miss.</p>
 <a href="#top" class="backlink">(back to top)</a>
 <h5><a id="ordinance"/>Ordinance</h5>
 <p>There are 3 types of ordinance available to players. Players have an unlimited number of shells but finite number of
@@ -120,12 +124,12 @@
     </tr>
     <tr>
         <td>Missile</td>
-        <td>1</td>
+        <td>3</td>
         <td>Hits a 3x3 square of cells centered at the cell at which it was fired.</td>
     </tr>
     <tr>
         <td>Drone</td>
-        <td>2</td>
+        <td>5</td>
         <td>Reveals a 5x5 section of the game board, centered at the cell at which it was fired. The reveled section of
             the grid will be shaded with a light color. Cells that contain an enemy ship will be shaded darker. The
             shading fades as turns progress.

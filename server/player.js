@@ -6,12 +6,13 @@ const Shot = require('./shot')
  * list of their shots.
  */
 class Player {
-    constructor(id,socket, playerNum, role) {
+    constructor(id, socket, playerNum, role) {
         this.id = id;
         this.socket = socket;
         this.playerNum = playerNum;
         this.role = role;
         this.ready = false;
+        this.ordinance = {'missile': 3, 'drone': 5};
         this.depletedOrdinance = [];
         this.ships = [];
         this.intel = [];
@@ -94,6 +95,9 @@ class Player {
             // check if the shot is within the ship
             if (ship.isHit(x, y, liveAmmo)) {
                 shot.setHit();
+                if (ship.isSunk()) {
+                    shot.addSinking(ship.getName());
+                }
             }
         }
         return shot;
@@ -115,10 +119,22 @@ class Player {
      * @param ordinance
      */
     addShot(shot, ordinance) {
-        if (ordinance === "drone" || ordinance === "missile") {
+        this.shots.push(shot);
+    }
+
+    /**
+     * Updates the counts of remaining ordinance.
+     * @param ordinance
+     */
+    updateOrdinanceCounts(ordinance) {
+        if (ordinance === "shell") {
+            // shells are unlimited
+            return;
+        }
+        this.ordinance[ordinance] = this.ordinance[ordinance] - 1;
+        if (this.ordinance[ordinance] === 0) {
             this.depletedOrdinance.push(ordinance);
         }
-        this.shots.push(shot);
     }
 
     /**
@@ -151,10 +167,7 @@ class Player {
     }
 
     setIntel(intel) {
-        if (this.intel !== undefined && this.intel.length > 0) {
-            this.depletedOrdinance.push('drone');
-        }
-        this.intel = intel;
+        this.intel = this.intel.concat(intel);
     }
 }
 

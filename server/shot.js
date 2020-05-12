@@ -9,10 +9,15 @@ class Shot {
         this.y = y;
         this.turnNumber = turn;
         this.isHit = isHit;
+        this.sunk = []
     }
 
     setHit() {
         this.isHit = true;
+    }
+
+    addSinking(ship) {
+        this.sunk.push(ship);
     }
 }
 

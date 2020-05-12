@@ -562,11 +562,21 @@ function drawShip(ship, offsetY, drawingContext) {
  */
 function drawShots(drawingContext) {
     if (state.playerState != null) {
+        let prevHits = [];
         for (let i = 0; i < state.playerState.shots.length; i++) {
             let shot = state.playerState.shots[i];
             let color = "white";
             if (shot.isHit) {
                 color = "red";
+                prevHits.push(shot);
+            } else {
+                // if this square was hit before, we want to color it pink instead of red or white
+                for (let j = 0; j < prevHits.length; j++) {
+                    if (prevHits[j].x === shot.x && prevHits[j].y === shot.y) {
+                        color = "pink";
+                        break;
+                    }
+                }
             }
             drawingContext.fillStyle = color;
             let x = toDrawingCoordinate(shot.x, 0);

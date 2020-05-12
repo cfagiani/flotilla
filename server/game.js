@@ -163,12 +163,16 @@ class Game {
                 case 'missile':
                     let misses = 0;
                     let hits = 0;
+                    let sinkings = []
                     for (let i = -1; i < 2; i++) {
                         for (let j = -1; j < 2; j++) {
-                            let shot = otherPlayer.shotAt(x + i, y + j, true, this.turnNumber, SQUARE_COUNT)
+                            let shot = otherPlayer.shotAt(x + i, y + j, true, this.turnNumber, SQUARE_COUNT);
                             if (shot != null) {
                                 if (shot.isHit) {
                                     hits++;
+                                    if (shot.sunk.length > 0) {
+                                        sinkings = sinkings.concat(shot.sunk);
+                                    }
                                 } else {
                                     misses++;
                                 }
@@ -178,6 +182,9 @@ class Game {
                         }
                     }
                     result['message'] = ": " + hits + " hits and " + misses + " misses";
+                    if (sinkings.length > 0) {
+                        result['message'] = result['message'] + " Sunk " + sinkings.join(',');
+                    }
                     otherPlayer.advanceShips(SQUARE_COUNT);
                     break;
                 case 'drone':
@@ -191,15 +198,20 @@ class Game {
                             }
                         }
                     }
+                    result['message'] = '';
                     shooter.setIntel(intel);
                     break;
                 case 'shell':
                     let shot = otherPlayer.shotAt(x, y, true, this.turnNumber, SQUARE_COUNT);
                     shooter.addShot(shot, ordinance);
                     result['message'] = shot.isHit ? ': hit' : ': miss';
+                    if (shot.sunk.length > 0) {
+                        result['message'] = result['message'] + " Sunk " + shot.sunk.join(',');
+                    }
                     otherPlayer.advanceShips(SQUARE_COUNT);
                     break;
             }
+            shooter.updateOrdinanceCounts(ordinance);
             this.turnNumber++;
         }
         return result;
