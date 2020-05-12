@@ -36,6 +36,15 @@ function init() {
         CONTROL_X = (squareCount + 5) * squareSize;
         buttonY = (squareSize - 1) * squareCount;
         mode = data.mode;
+        if(data.playerState != null){
+            let shipsToLoad = data.playerState.ships;
+            if (data.playerState.role === 'observer' && data.observationState !== undefined) {
+                shipsToLoad = data.observationState[0].ships;
+            }
+            for (let i = 0; i < shipsToLoad.length; i++) {
+                loadShipImage(shipsToLoad[i]);
+            }
+        }
         if (mode === 'placement' && data.playerState != null) {
             // reset the ordinance to defaults
             updateOrdinance(null);
@@ -46,22 +55,12 @@ function init() {
                 currentMessage = ['Place your ships'];
                 canDrag = true;
             }
-            let shipsToLoad = data.playerState.ships;
-            if (data.playerState.role === 'observer' && data.observationState !== undefined) {
-                shipsToLoad = data.observationState[0].ships;
-            }
+
             for (let i = 0; i < data.playerState.ships.length; i++) {
                 data.playerState.ships[i].drawingX = CONTROL_X;
                 data.playerState.ships[i].drawingY = HEIGHT / 20 + ((HEIGHT / 20) * i);
             }
-            for (let i = 0; i < shipsToLoad.length; i++) {
-                let img = new Image();
-                img.addEventListener('load', function (event) {
-                    SHIP_IMAGES[shipsToLoad[i].name] = img;
-                    draw();
-                });
-                img.src = "/img/" + shipsToLoad[i].image;
-            }
+
         } else if (mode === 'play' && state.playerState.role === 'player') {
             if (state.playerState != null && state.playerState.isTurn) {
                 currentMessage = ['Click to shoot'];
@@ -93,6 +92,17 @@ function init() {
         }
         draw();
     });
+}
+
+function loadShipImage(ship) {
+    if (SHIP_IMAGES[ship.name] === undefined) {
+        let img = new Image();
+        img.addEventListener('load', function (event) {
+            SHIP_IMAGES[ship.name] = img;
+            draw();
+        });
+        img.src = "/img/" + ship.image;
+    }
 }
 
 /**
