@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Flotilla</title>
+    <meta charset="UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="/css/styles.css"/>
+</head>
+<body>
+<h1>Flotilla</h1>
+<div class="toc">
+    <a id="top"/>
+    <ul>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#howtoplay">How to Play</a></li>
+        <ul>
+            <li><a href="#joining">Joining a Game</a></li>
+            <li><a href="#ships">Ships</a></li>
+            <li><a href="#placement">Ship Placement</a></li>
+            <li><a href="#playmode">Play Mode</a></li>
+            <ul>
+                <li><a href="#ordinance">Ordinance</a></li>
+            </ul>
+        </ul>
+    </ul>
+</div>
+<h2><a id="overview"/>Overview</h2>
+<p>Flotilla is a naval warfare game between two players. After both players have placed their ships on the board, the
+    game begins.
+    Players will take turns firing ordinance at grid positions. Different ordinance types have different effects (see
+    the ordinance section below).
+    Each shot will be marked as either a hit (red) or a miss
+    (white). At the conclusion of each turn, the ships will all move according to their speed (see the ships section
+    below). The first player to sink their opponent's entire fleet wins.</p>
+<h3><a id="howtoplay"/>How to Play</h3>
+<h4><a id="joining"/>Joining a Game</h4>
+<p>The first two participants to join a game room are the players and
+    all subsequent participants that join the same room will be set up as observers. Players can see their own ships on
+    the top grid and
+    keep track of their shots on the bottom grid. Observers will see both players ships (player 1 on the top and player
+    2 on the bottom). All participants can use the chat box to interact with one another. In addition to participant
+    messages, game messages will also be sent to the chat box.</p>
+<a href="#top" class="backlink">(back to top)</a>
+<h4><a id="ships"/>Ships</h4>
+<p>There are 5 types of ships in the game. Each ship has its own speed and number of hits required to sink as outlined
+    in the table below. The speed indicates how many grid squares the ship will advance after each turn. When a ship
+    reaches the edge of the grid,
+    it will turn around and go back the other way. Turning around counts as its movement for that turn.</p>
+<table>
+    <tr>
+        <th>Icon</th>
+        <th>Ship Name</th>
+        <th>Speed</th>
+        <th>Hits to Sink</th>
+    </tr>
+    <tr>
+        <td><img src="/img/carrier.png"/></td>
+        <td>Carrier</td>
+        <td>1</td>
+        <td>5</td>
+    </tr>
+    <tr>
+        <td><img src="/img/destroyer.png"/></td>
+        <td>Destroyer</td>
+        <td>2</td>
+        <td>4</td>
+    </tr>
+    <tr>
+        <td><img src="/img/cruiser.png"/></td>
+        <td>Cruiser</td>
+        <td>3</td>
+        <td>3</td>
+    </tr>
+    <tr>
+        <td><img src="/img/sub.png"/></td>
+        <td>Submarine</td>
+        <td>2</td>
+        <td>3</td>
+    </tr>
+    <tr>
+        <td><img src="/img/corvette.png"/></td>
+        <td>Corvette</td>
+        <td>3</td>
+        <td>2</td>
+    </tr>
+</table>
+<a href="#top" class="backlink">(back to top)</a>
+<h4><a id="placement"/>Ship Placement</h4>
+<p>When the game first begins, it will be in 'placement' mode. When in this mode, the two players can drag their ships
+    to the desired initial positions on their ship grid (the top-most grid). A ship must be fully on the grid (no part
+    of it may extend beyond the grid surface) for it to be a legal placement.
+    When a ship is on the grid, double-click it to rotate it.</p>
+<p>Ships may overlap. Note if a shot hits a grid cell that contains multiple ships <i>all</i> of the ships will be hit.
+</p>
+<p>Once all ships are on the grid, the "Ready" button will appear. After the player is satisfied with how their ships
+    are arranged, click in the ready button.
+    Once the button has been clicked, the ships will not be able to be moved.</p>
+<a href="#top" class="backlink">(back to top)</a>
+<h4><a id="playmode"/>Play Mode</h4>
+<p>Once both players have clicked "Ready" the game transitions to "Play" mode. In this mode, players take turns firing
+    at their opponent. To fire, a user selects the desired ordinance (see below) and then clicks the grid square to
+    target. The grid squares affected by the shot will be colored red if it was a hit and white if it was a miss. Each
+    shot square will also contain a number. This is the number of turns since that shot was fired. Since ships move, a
+    cell that was a miss could become a hit at a
+    later time (or vice versa) so a player may have to fire at the same space more than once.</p>
+<a href="#top" class="backlink">(back to top)</a>
+<h5><a id="ordinance"/>Ordinance</h5>
+<p>There are 3 types of ordinance available to players. Players have an unlimited number of shells but finite number of
+    other types. See the table below for details.</p>
+
+<table>
+    <tr>
+        <th>Type</th>
+        <th>Quantity</th>
+        <th>Effect</th>
+    </tr>
+    <tr>
+        <td>Shell</td>
+        <td>Unlimited</td>
+        <td>Hits a single grid cell.</td>
+    </tr>
+    <tr>
+        <td>Missile</td>
+        <td>1</td>
+        <td>Hits a 3x3 square of cells centered at the cell at which it was fired.</td>
+    </tr>
+    <tr>
+        <td>Drone</td>
+        <td>2</td>
+        <td>Reveals a 5x5 section of the game board, centered at the cell at which it was fired. The reveled section of
+            the grid will be shaded with a light color. Cells that contain an enemy ship will be shaded darker. The
+            shading fades as turns progress.
+        </td>
+    </tr>
+    <a href="#top" class="backlink">(back to top)</a>
+</table>
+</body>
+</html>

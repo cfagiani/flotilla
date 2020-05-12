@@ -29,8 +29,8 @@ If you fire upon a cell with multiple ships present, ALL ships in that cell will
 * include attribution for sprites (https://opengameart.org/content/sea-warfare-set-ships-and-more) maybe
 * reset button prior to starting
 * display grid coordinates
+* play again button(s) (same players vs random pairing)
 * unit tests
-* help/instructions screen
 * dockerfile for running (ensure NODE_ENV env var set to production)
 
 #####POSSIBLE ENHANCEMENTS

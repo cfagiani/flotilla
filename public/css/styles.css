@@ -2,9 +2,31 @@ div {
     font-size: small;
 }
 
-legend{
+body {
+    font-family: sans-serif;
+}
+
+table {
+    width: 50%;
+}
+
+th {
+    text-align: left;
+}
+
+legend {
     font-size: medium;
 }
+
+
+.backlink {
+    font-size: x-small;
+}
+
+.toc li {
+    list-style-type: none;
+}
+
 .panel {
     border: 1px solid #000000;
 }
