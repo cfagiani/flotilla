@@ -28,7 +28,6 @@ If you fire upon a cell with multiple ships present, ALL ships in that cell will
 #####TODO:
 * include attribution for sprites (https://opengameart.org/content/sea-warfare-set-ships-and-more) maybe
 * reset button prior to starting
-* refactor/clean-up code
 * display grid coordinates
 * unit tests
 * help/instructions screen
