@@ -31,12 +31,13 @@ If you fire upon a cell with multiple ships present, ALL ships in that cell will
 * refactor/clean-up code
 * display grid coordinates
 * unit tests
-* observation mode
+* help/instructions screen
+* dockerfile for running (ensure NODE_ENV env var set to production)
 
 #####POSSIBLE ENHANCEMENTS
 This section contains ideas for further enhancements for the game. 
 * submarines can only be hit if they're the only thing in a cell
 * "Easy Mode" - disables ship movement
 * music/sound effects
-
+* better room assignment - if there is a room with 1 player, ensure next random assignment is to that room
 

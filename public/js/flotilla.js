@@ -39,35 +39,59 @@ function init() {
         if (mode === 'placement' && data.playerState != null) {
             // reset the ordinance to defaults
             updateOrdinance(null);
-            currentMessage = ['Place your ships'];
-            canDrag = true;
+            if (data.playerState.role === 'observer') {
+                currentMessage = ['Your are observing'];
+                canDrag = false;
+            } else {
+                currentMessage = ['Place your ships'];
+                canDrag = true;
+            }
+            let shipsToLoad = data.playerState.ships;
+            if (data.playerState.role === 'observer' && data.observationState !== undefined) {
+                shipsToLoad = data.observationState[0].ships;
+            }
             for (let i = 0; i < data.playerState.ships.length; i++) {
                 data.playerState.ships[i].drawingX = CONTROL_X;
                 data.playerState.ships[i].drawingY = HEIGHT / 20 + ((HEIGHT / 20) * i);
+            }
+            for (let i = 0; i < shipsToLoad.length; i++) {
                 let img = new Image();
                 img.addEventListener('load', function (event) {
-                    SHIP_IMAGES[data.playerState.ships[i].name] = img;
+                    SHIP_IMAGES[shipsToLoad[i].name] = img;
                     draw();
                 });
-                img.src = "/img/" + data.playerState.ships[i].image;
+                img.src = "/img/" + shipsToLoad[i].image;
             }
-        } else if (mode === 'play') {
+        } else if (mode === 'play' && state.playerState.role === 'player') {
             if (state.playerState != null && state.playerState.isTurn) {
                 currentMessage = ['Click to shoot'];
             } else {
                 currentMessage = ['Waiting for opponent'];
             }
             updateOrdinance(state.playerState);
-            draw();
             canDrag = false;
+        } else if (mode === 'play' && state.playerState.role === 'observer') {
+            if (state.observationState !== undefined) {
+                let turnNum = -1;
+                for (let i = 0; i < state.observationState.length; i++) {
+                    if (state.observationState[i].isTurn) {
+                        turnNum = state.observationState[i].num;
+                    }
+                }
+                if (turnNum > 0) {
+                    currentMessage = ["Player " + turnNum + "'s turn"];
+                }
+            }
         } else if (mode === 'gameOver') {
             if (state.playerState != null && state.playerState.isWinner) {
                 currentMessage = ["Game Over", " You Win!"];
-            } else {
+            } else if (state.playerState.role === 'player') {
                 currentMessage = ["Game Over", " You Lose."];
+            } else {
+                currentMessage = ["Game Over"];
             }
-            draw();
         }
+        draw();
     });
 }
 
@@ -95,7 +119,9 @@ function draw() {
  */
 function drawButton(drawingContext) {
     if (state.mode === "placement" && allShipsPlaced()) {
-
+        if (state.playerState != null && state.playerState.role === 'observer') {
+            return;
+        }
         drawingContext.fillStyle = "gray";
 
         drawingContext.fillRect(CONTROL_X, buttonY, buttonWidth, buttonHeight);
@@ -350,7 +376,19 @@ function drawMessage(drawingContext) {
 function drawShips(drawingContext) {
     if (state.playerState != null) {
         for (let idx = 0; idx < state.playerState.ships.length; idx++) {
-            drawShip(state.playerState.ships[idx], drawingContext);
+            drawShip(state.playerState.ships[idx], 0, drawingContext);
+        }
+        if (state.mode !== 'placement' && state.observationState !== undefined) {
+            if (state.observationState.length > 0) {
+                for (let idx = 0; idx < state.observationState[0].ships.length; idx++) {
+                    drawShip(state.observationState[0].ships[idx], 0, drawingContext);
+                }
+            }
+            if (state.observationState.length > 1) {
+                for (let idx = 0; idx < state.observationState[1].ships.length; idx++) {
+                    drawShip(state.observationState[1].ships[idx], BOTTOM_GRID_TOP, drawingContext);
+                }
+            }
         }
     }
 }
@@ -360,11 +398,11 @@ function drawShips(drawingContext) {
  * @param ship
  * @param drawingContext
  */
-function drawShip(ship, drawingContext) {
+function drawShip(ship, offsetY, drawingContext) {
     let shipY = ship.drawingY;
     let shipX = ship.drawingX;
-    if (state.mode != 'placement') {
-        shipY = toDrawingCoordinate(ship.y, 0);
+    if (state.mode !== 'placement') {
+        shipY = toDrawingCoordinate(ship.y, offsetY);
         shipX = toDrawingCoordinate(ship.x, 0);
     }
     let centerX = shipX;
@@ -464,33 +502,47 @@ function drawIntel(drawingContext) {
  */
 function drawHits(drawingContext) {
     if (state.playerState != null) {
-        for (let i = 0; i < state.playerState.ships.length; i++) {
-            let ship = state.playerState.ships[i];
+        drawHitsOnShips(state.playerState.ships, 0, drawingContext);
+    }
+    if (state.observationState !== undefined) {
+        if (state.observationState.length > 0) {
+            drawHitsOnShips(state.observationState[0].ships, 0, drawingContext);
+        }
+        if (state.observationState.length > 1) {
+            drawHitsOnShips(state.observationState[1].ships, BOTTOM_GRID_TOP, drawingContext);
+        }
+    }
+}
 
-            drawingContext.fillStyle = "red";
-            //if there are hits, render them
+function drawHitsOnShips(shipList, yOffset, drawingContext) {
+    if (shipList == null) {
+        return;
+    }
+    for (let i = 0; i < shipList.length; i++) {
+        let ship = shipList[i];
 
-            for (let j = 0; j < ship.hits.length; j++) {
-                let x = ship.x;
-                let y = ship.y;
-                if (ship.hits[j] === 1) {
-                    switch (ship.heading) {
-                        case 0:
-                            x = x + j;
-                            break;
-                        case 1:
-                            y = y + j;
-                            break;
-                        case 2:
-                            x = x - j;
-                            break;
-                        case 3:
-                            y = y - j;
-                            break;
-                    }
-                    drawingContext.fillRect(toDrawingCoordinate(x, 0) + (squareSize / 4), toDrawingCoordinate(y, 0) + (squareSize / 4), squareSize / 2, squareSize / 2);
+        drawingContext.fillStyle = "red";
+        //if there are hits, render them
+
+        for (let j = 0; j < ship.hits.length; j++) {
+            let x = ship.x;
+            let y = ship.y;
+            if (ship.hits[j] === 1) {
+                switch (ship.heading) {
+                    case 0:
+                        x = x + j;
+                        break;
+                    case 1:
+                        y = y + j;
+                        break;
+                    case 2:
+                        x = x - j;
+                        break;
+                    case 3:
+                        y = y - j;
+                        break;
                 }
-
+                drawingContext.fillRect(toDrawingCoordinate(x, 0) + (squareSize / 4), toDrawingCoordinate(y, yOffset) + (squareSize / 4), squareSize / 2, squareSize / 2);
             }
         }
     }

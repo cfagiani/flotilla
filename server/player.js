@@ -58,6 +58,7 @@ class Player {
             shots: this.shots,
             num: this.playerNum,
             intel: this.intel,
+            role: this.role,
             depletedOrdinance: this.depletedOrdinance,
             isTurn: this.playerNum === 1 ? turnNumber % 2 === 1 : turnNumber % 2 === 0,
             isWinner: this.hasLiveShips()

@@ -19,7 +19,7 @@ app.get('/', function (req, res) {
 app.get('/room/:room', function (req, res) {
     let game = GAME_MAP[req.params['room']]
     if (game === undefined) {
-        res.writeHead(404);
+        res.status(404);
         res.sendFile(__dirname + '/public/error.html');
     }
     res.sendFile(__dirname + '/public/index.html');

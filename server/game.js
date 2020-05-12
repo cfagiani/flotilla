@@ -94,12 +94,21 @@ class Game {
             }
         }
 
-        return {
+        let stateForPlayer = {
             turnNumber: this.turnNumber,
             mode: this.mode,
             squareCount: SQUARE_COUNT,
             playerState: this.participants[id].getState(this.turnNumber)
         }
+
+        if (this.participants[id].getRole() === 'observer') {
+            stateForPlayer['observationState'] = [];
+            for (let i = 0; i < this.players.length; i++) {
+                stateForPlayer['observationState'].push(this.players[i].getState(this.turnNumber));
+            }
+        }
+
+        return stateForPlayer;
     }
 
     /**
