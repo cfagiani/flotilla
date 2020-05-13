@@ -189,7 +189,8 @@ class Game {
                             }
                         }
                     }
-                    result['message'] = ": " + hits + " hits and " + misses + " misses";
+                    result['message'] = ": " + hits + " hit" + (hits === 0 || hits > 1 ? "s" : "") +
+                        " and " + misses + " miss" + (misses === 0 || misses > 1 ? "es" : "");
                     if (sinkings.length > 0) {
                         result['message'] = result['message'] + " Sunk " + sinkings.join(',');
                     }

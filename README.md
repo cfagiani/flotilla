@@ -34,7 +34,6 @@ If you fire upon a cell with multiple ships present, ALL ships in that cell will
 * dockerfile for running (ensure NODE_ENV env var set to production)
 * ready button should disappear after click
 * include heading in intel
-* fix singular/plural in hit/miss chat message
 
 #####POSSIBLE ENHANCEMENTS
 This section contains ideas for further enhancements for the game. 
