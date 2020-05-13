@@ -33,7 +33,6 @@ If you fire upon a cell with multiple ships present, ALL ships in that cell will
 * unit tests
 * dockerfile for running (ensure NODE_ENV env var set to production)
 * ready button should disappear after click
-* make chat window auto-scroll to bottom if scroll bar is at bottom
 * include heading in intel
 * fix singular/plural in hit/miss chat message
 
