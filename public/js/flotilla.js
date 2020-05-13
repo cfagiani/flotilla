@@ -261,17 +261,37 @@ function setupBoard() {
 
     canvasElement.addEventListener('click', takeTurn, false);
     canvasElement.addEventListener('mousemove', dragShip);
+    canvasElement.addEventListener('touchmove', function (event) {
+        if (event.touches.length === 1) {
+            event.preventDefault();
+            dragShip(event.touches[0]);
+        }
+    }, false);
 
     canvasElement.addEventListener('mousedown', function (event) {
         pickUpShip(event);
         handleButtonDown(event);
 
     });
+    canvasElement.addEventListener('touchstart', function (event) {
+        if (event.touches.length === 1) {
+            pickUpShip(event.touches[0]);
+            handleButtonDown(event.touches[0]);
+        }
+    }, false);
+
     canvasElement.addEventListener('mouseup', function (event) {
         dropShip(event);
         handleButtonUp(event);
         draw();
     });
+    canvasElement.addEventListener('touchend', function (event) {
+        if (event.touches.length === 0) {
+            dropShip(event);
+            handleButtonUp(event);
+            draw();
+        }
+    }, false);
     canvasElement.addEventListener('dblclick', rotateShip);
 }
 
