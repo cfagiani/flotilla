@@ -26,7 +26,7 @@ If you fire upon a cell with multiple ships present, ALL ships in that cell will
 
 
 #####TODO:
-* include attribution for sprites (https://opengameart.org/content/sea-warfare-set-ships-and-more) maybe
+* include attribution for sprites (https://opengameart.org/content/sea-warfare-set-ships-and-more) 
 * reset button prior to starting
 * display grid coordinates
 * play again button(s) (same players vs random pairing)
@@ -35,7 +35,6 @@ If you fire upon a cell with multiple ships present, ALL ships in that cell will
 * ready button should disappear after click
 * make chat window auto-scroll to bottom if scroll bar is at bottom
 * include heading in intel
-* touch support for ship rotation
 * fix singular/plural in hit/miss chat message
 
 #####POSSIBLE ENHANCEMENTS

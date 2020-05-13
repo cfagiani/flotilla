@@ -5,6 +5,7 @@ let ROTATION_RADIANS = (Math.PI / 180) * 90;
 let ALPHA_FACTOR = 0.2;
 let BUTTON_WIDTH = 80;
 let BUTTON_HEIGHT = 40;
+let DOUBLE_TOUCH_SPEED = 250;
 
 // Values that are only set once
 let HEIGHT = 0;
@@ -23,6 +24,8 @@ let draggingShip = null;
 let buttonPressed = false;
 let currentMessage = ['Place your ships'];
 let socket = null;
+let touchStart = 0;
+let lastTouch = null;
 
 
 init();
@@ -275,8 +278,16 @@ function setupBoard() {
     });
     canvasElement.addEventListener('touchstart', function (event) {
         if (event.touches.length === 1) {
-            pickUpShip(event.touches[0]);
-            handleButtonDown(event.touches[0]);
+            let now = new Date().getTime();
+
+            if (now - touchStart < DOUBLE_TOUCH_SPEED) {
+                event.preventDefault();
+                rotateShip(event.touches[0]);
+            } else {
+                touchStart = now;
+                pickUpShip(event.touches[0]);
+                handleButtonDown(event.touches[0]);
+            }
         }
     }, false);
 
