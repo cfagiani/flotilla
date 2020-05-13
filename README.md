@@ -43,5 +43,4 @@ This section contains ideas for further enhancements for the game.
 * "Easy Mode" - disables ship movement
 * music/sound effects
 * prevent second connection from same user (to prevent acting as an observer on own game)
-* better room assignment - if there is a room with 1 player, ensure next random assignment is to that room
 

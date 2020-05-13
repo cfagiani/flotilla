@@ -8,12 +8,9 @@ const GAME_MAP = {
     'melons': new Game(), 'bucket': new Game(), 'coffee': new Game()
 };
 
-
+// Set up routes
 app.get('/', function (req, res) {
-    let keyArray = Object.keys(GAME_MAP);
-    let selectedRoom = keyArray[Math.floor(Math.random() * keyArray.length)];
-    res.redirect('/room/' + selectedRoom);
-
+    res.redirect('/room/' + selectRoom());
 });
 
 app.get('/room/:room', function (req, res) {
@@ -25,16 +22,12 @@ app.get('/room/:room', function (req, res) {
     res.sendFile(__dirname + '/public/index.html');
 });
 
+// start the server and set up the websockets
 app.use(express.static('public'));
-
-
 serv.listen(2000);
 console.log("Server started.");
-
-const ALL_SOCKETS = {};
-
-
 let io = require('socket.io')(serv, {});
+
 io.sockets.on('connection', function (socket) {
     socket.id = Math.random();
     socket.on('join', function (data) {
@@ -48,7 +41,6 @@ io.sockets.on('connection', function (socket) {
         socket.on('disconnect', function () {
             let name = "User " + game.getPlayer(socket.id).getPlayerNum();
             game.broadcastChat(name + " left");
-            delete ALL_SOCKETS[socket.id];
             let wasPlayer = game.removePlayer(socket.id);
             if (wasPlayer) {
                 game.broadcastChat('Only 1 player. Game resetting');
@@ -73,7 +65,7 @@ io.sockets.on('connection', function (socket) {
         });
 
         socket.on('takeTurn', function (data) {
-            result = game.recordTurn(data.playerId, data.x, data.y, data.ordinance.toLowerCase());
+            let result = game.recordTurn(data.playerId, data.x, data.y, data.ordinance.toLowerCase());
             if (result['shooter'] !== undefined) {
                 let message = 'User ' + result['shooter'] + ' fired a ' + data.ordinance + ' at ' + data.x + ',' + data.y + result['message'];
                 game.broadcastChat(message);
@@ -82,6 +74,33 @@ io.sockets.on('connection', function (socket) {
         });
 
     });
-
-
 });
+
+/**
+ * Selects the game room to assign to a user using the following heuristics:
+ * 1. place the user into a game with 1 other player
+ * 2. place the user into an empty game
+ * 3. randomly select a game
+ */
+function selectRoom() {
+
+    let zeroPlayerRoom = null;
+    // loop over all the rooms and find out how many players are there
+    for (let room in GAME_MAP) {
+        let count = GAME_MAP[room].getParticipantCount();
+        // we found a game with a player waiting for an opponent. use that
+        if (count === 1) {
+            return room;
+        } else if (count === 0) {
+            zeroPlayerRoom = room;
+        }
+    }
+    // if we are here, there are no rooms waiting for players so put the user in an empty game
+    if (zeroPlayerRoom != null) {
+        return zeroPlayerRoom;
+    }
+    // if we are here, all games have 2 players so just pick a room at random and put the user there as an observer
+    let keyArray = Object.keys(GAME_MAP);
+    let selectedRoom = keyArray[Math.floor(Math.random() * keyArray.length)];
+    return selectedRoom;
+}

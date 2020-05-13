@@ -135,6 +135,14 @@ class Game {
     }
 
     /**
+     * Returns number of participants in this game.
+     * @returns {number}
+     */
+    getParticipantCount() {
+        return Object.keys(this.participants).length;
+    }
+
+    /**
      * Records a turn for a player. This consists of shooting ordinance at grid coordinates and incrementing the turn
      * number.
      * @param playerId
