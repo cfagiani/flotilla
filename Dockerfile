@@ -14,12 +14,12 @@ RUN cp -R node_modules prod_node_modules
 RUN npm install
 
 
-#TODO: add this phase when we have tests
+
 # Test image
 # run linters, setup and tests
-#FROM dependencies AS test
-#COPY . .
-#RUN  npm run lint && npm run setup && npm run test
+FROM dependencies AS test
+COPY . .
+RUN  npm run test
 
 # Release image
 FROM base AS release
