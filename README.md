@@ -25,15 +25,14 @@ When a ship reaches the boundary of the board, it will turn around (1 turn) and 
 If you fire upon a cell with multiple ships present, ALL ships in that cell will be hit.
 
 
-##### TODO:
-* include attribution for sprites (https://opengameart.org/content/sea-warfare-set-ships-and-more) 
+##### TODO: 
 * reset button prior to starting
 * display grid coordinates
 * play again button(s) (same players vs random pairing)
 * unit tests
-* dockerfile for running (ensure NODE_ENV env var set to production)
 * ready button should disappear after click
 * include heading in intel
+* show sunk ships
 
 ##### POSSIBLE ENHANCEMENTS
 This section contains ideas for further enhancements for the game. 

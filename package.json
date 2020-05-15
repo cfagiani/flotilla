@@ -1,13 +1,17 @@
 {
   "name": "flotilla",
   "version": "1.0.0",
-  "description": "",
+  "description": "Two-player naval warfare game. Players place their ships on a grid and then take turns firing different types of ordinance at each other.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cfagiani/flotilla.git"
+  },
   "keywords": [],
-  "author": "",
+  "author": "Christopher Fagiani",
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
