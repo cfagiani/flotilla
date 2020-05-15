@@ -4,7 +4,8 @@
   "description": "Two-player naval warfare game. Players place their ships on a grid and then take turns firing different types of ordinance at each other.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",

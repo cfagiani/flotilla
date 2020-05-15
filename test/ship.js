@@ -1,5 +1,5 @@
-var assert = require('assert');
-var Ship = require('../server/ship')
+let assert = require('assert');
+let Ship = require('../server/ship');
 
 describe('Ship', function () {
     describe('#isHit', function () {
@@ -128,19 +128,32 @@ describe('Ship', function () {
 
     });
     describe('#isSunk', function () {
-        it('should return true if all positions are hit', function(){
+        it('should return true if all positions are hit', function () {
             let ship = new Ship("test", 3, 2, null);
             for (let i = 0; i < ship.size; i++) {
                 ship.hits[i] = 1;
             }
             assert.strictEqual(ship.isSunk(), true);
         });
-        it('should return false if not all positions are hit', function(){
+        it('should return false if not all positions are hit', function () {
             let ship = new Ship("test", 3, 2, null);
-            for (let i = 0; i < ship.size-1; i++) {
+            for (let i = 0; i < ship.size - 1; i++) {
                 ship.hits[i] = 1;
             }
             assert.strictEqual(ship.isSunk(), false);
+        });
+    });
+    describe('#getState', function () {
+        it('should return all required fields', function () {
+            let ship = new Ship('test', 3, 2, 'testImg');
+            let state = ship.getState();
+            assert.strictEqual(state.x !== undefined, true);
+            assert.strictEqual(state.y !== undefined, true);
+            assert.strictEqual(state.heading !== undefined, true);
+            assert.strictEqual(state.hits !== undefined, true);
+            assert.strictEqual(state.speed === ship.speed, true);
+            assert.strictEqual(state.size === ship.size, true);
+            assert.strictEqual(state.image === ship.image, true);
         });
     });
 });
