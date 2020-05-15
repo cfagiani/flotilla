@@ -1,11 +1,13 @@
 // constants
 let SQUARE_SIZE = 20;
-let BOTTOM_GRID_TOP = 300;
+let TOP_GRID_TOP = 20;
+let BOTTOM_GRID_TOP = 320;
 let ROTATION_RADIANS = (Math.PI / 180) * 90;
 let ALPHA_FACTOR = 0.2;
 let BUTTON_WIDTH = 80;
 let BUTTON_HEIGHT = 40;
 let DOUBLE_TOUCH_SPEED = 250;
+let GRID_X_OFFSET = 20;
 
 // Values that are only set once
 let HEIGHT = 0;
@@ -381,10 +383,10 @@ function dropShip(event) {
         // we dropped a ship. Snap to grid if over it.
         if (isFullyOnGrid(draggingShip)) {
             // we're in the grid, find closest anchor and snap to it
-            draggingShip.x = Math.floor(draggingShip.drawingX / SQUARE_SIZE) + 1;
-            draggingShip.drawingX = (draggingShip.x - 1) * SQUARE_SIZE;
-            draggingShip.y = Math.floor(draggingShip.drawingY / SQUARE_SIZE) + 1;
-            draggingShip.drawingY = (draggingShip.y - 1) * SQUARE_SIZE;
+            draggingShip.x = Math.floor((draggingShip.drawingX - GRID_X_OFFSET) / SQUARE_SIZE) + 1;
+            draggingShip.drawingX = (draggingShip.x - 1) * SQUARE_SIZE + GRID_X_OFFSET;
+            draggingShip.y = Math.floor((draggingShip.drawingY - TOP_GRID_TOP) / SQUARE_SIZE) + 1;
+            draggingShip.drawingY = (draggingShip.y - 1) * SQUARE_SIZE + TOP_GRID_TOP;
         } else {
             // not in the grid anymore so wipe the x,y coords
             draggingShip.x = -1;
@@ -402,10 +404,10 @@ function dragShip(event) {
     if (draggingShip != null) {
         let mouseX = event.pageX - CANVAS_LEFT;
         let mouseY = event.pageY - CANVAS_RIGHT;
-        if (mouseX >= 0) {
+        if (mouseX >= GRID_X_OFFSET) {
             draggingShip.drawingX = mouseX;
         }
-        if (mouseY + SQUARE_SIZE <= BOTTOM_GRID_TOP) {
+        if (mouseY <= (SQUARE_SIZE * state.squareCount) + (SQUARE_SIZE / 2) && mouseY >= TOP_GRID_TOP) {
             draggingShip.drawingY = mouseY;
         }
         draw();
@@ -419,7 +421,7 @@ function dragShip(event) {
  */
 function takeTurn(event) {
     if (state.playerState != null && state.playerState.isTurn && state.mode === 'play') {
-        let x = Math.floor(((event.pageX - CANVAS_LEFT) / SQUARE_SIZE)) + 1;
+        let x = Math.floor(((event.pageX - CANVAS_LEFT - GRID_X_OFFSET) / SQUARE_SIZE)) + 1;
         let y = Math.floor(((event.pageY - CANVAS_RIGHT - BOTTOM_GRID_TOP) / SQUARE_SIZE)) + 1;
         if (x <= state.squareCount && y >= 0 && y <= state.squareCount) {
             socket.emit('takeTurn', {
@@ -440,11 +442,11 @@ function takeTurn(event) {
  * @returns {boolean}
  */
 function isFullyOnGrid(ship) {
-    let maxX = (SQUARE_SIZE * state.squareCount);
-    let maxY = (SQUARE_SIZE * state.squareCount);
+    let maxX = GRID_X_OFFSET + (SQUARE_SIZE * state.squareCount);
+    let maxY = TOP_GRID_TOP + (SQUARE_SIZE * state.squareCount);
 
-    let xSnap = Math.floor(draggingShip.drawingX / SQUARE_SIZE) * SQUARE_SIZE;
-    let ySnap = Math.floor(draggingShip.drawingY / SQUARE_SIZE) * SQUARE_SIZE;
+    let xSnap = GRID_X_OFFSET + Math.floor((draggingShip.drawingX - GRID_X_OFFSET) / SQUARE_SIZE) * SQUARE_SIZE;
+    let ySnap = TOP_GRID_TOP + Math.floor((draggingShip.drawingY - TOP_GRID_TOP) / SQUARE_SIZE) * SQUARE_SIZE;
 
     if (xSnap <= maxX && ySnap <= maxY) {
         // the anchor point is in the grid; now make sure the rest of the ship is still on it
@@ -460,12 +462,12 @@ function isFullyOnGrid(ship) {
                 }
                 break;
             case 2:
-                if (xSnap - (ship.size * SQUARE_SIZE) >= 0) {
+                if (xSnap - (ship.size * SQUARE_SIZE) >= TOP_GRID_TOP) {
                     return true;
                 }
                 break;
             case 3:
-                if (ySnap - (ship.size * SQUARE_SIZE) >= 0) {
+                if (ySnap - (ship.size * SQUARE_SIZE) >= GRID_X_OFFSET) {
                     return true;
                 }
                 break;
@@ -519,10 +521,10 @@ function getClickedShip(event) {
  */
 function drawMessage(drawingContext) {
     if (currentMessage != null) {
-        drawingContext.font = "22px Arial";
+        drawingContext.font = "20px Arial";
         drawingContext.fillStyle = "black";
         for (let i = 0; i < currentMessage.length; i++) {
-            drawingContext.fillText(currentMessage[i], (SQUARE_SIZE * state.squareCount) + 10, BOTTOM_GRID_TOP + ((2 + (i + 1)) * SQUARE_SIZE));
+            drawingContext.fillText(currentMessage[i], (SQUARE_SIZE * state.squareCount) + GRID_X_OFFSET + 10, BOTTOM_GRID_TOP + ((2 + (i + 1)) * SQUARE_SIZE));
         }
     }
 }
@@ -534,12 +536,12 @@ function drawMessage(drawingContext) {
 function drawShips(drawingContext) {
     if (state.playerState != null) {
         for (let idx = 0; idx < state.playerState.ships.length; idx++) {
-            drawShip(state.playerState.ships[idx], 0, drawingContext);
+            drawShip(state.playerState.ships[idx], TOP_GRID_TOP, drawingContext);
         }
         if (state.mode !== 'placement' && state.observationState !== undefined) {
             if (state.observationState.length > 0) {
                 for (let idx = 0; idx < state.observationState[0].ships.length; idx++) {
-                    drawShip(state.observationState[0].ships[idx], 0, drawingContext);
+                    drawShip(state.observationState[0].ships[idx], TOP_GRID_TOP, drawingContext);
                 }
             }
             if (state.observationState.length > 1) {
@@ -561,7 +563,7 @@ function drawShip(ship, offsetY, drawingContext) {
     let shipX = ship.drawingX;
     if (state.mode !== 'placement') {
         shipY = toDrawingCoordinate(ship.y, offsetY);
-        shipX = toDrawingCoordinate(ship.x, 0);
+        shipX = toDrawingCoordinate(ship.x, GRID_X_OFFSET);
     }
     let centerX = shipX;
     let centerY = shipY;
@@ -616,7 +618,7 @@ function drawShots(drawingContext) {
                 }
             }
             drawingContext.fillStyle = color;
-            let x = toDrawingCoordinate(shot.x, 0);
+            let x = toDrawingCoordinate(shot.x, GRID_X_OFFSET);
             let y = toDrawingCoordinate(shot.y, BOTTOM_GRID_TOP);
             drawingContext.fillRect(x + 2, y + 2, SQUARE_SIZE - 4, SQUARE_SIZE - 4);
             drawingContext.font = "11px Arial";
@@ -670,11 +672,11 @@ function drawIntel(drawingContext) {
  */
 function drawHits(drawingContext) {
     if (state.playerState != null) {
-        drawHitsOnShips(state.playerState.ships, 0, drawingContext);
+        drawHitsOnShips(state.playerState.ships, TOP_GRID_TOP, drawingContext);
     }
     if (state.observationState !== undefined) {
         if (state.observationState.length > 0) {
-            drawHitsOnShips(state.observationState[0].ships, 0, drawingContext);
+            drawHitsOnShips(state.observationState[0].ships, TOP_GRID_TOP, drawingContext);
         }
         if (state.observationState.length > 1) {
             drawHitsOnShips(state.observationState[1].ships, BOTTOM_GRID_TOP, drawingContext);
@@ -717,7 +719,7 @@ function drawHitsOnShips(shipList, yOffset, drawingContext) {
                         y = y - j;
                         break;
                 }
-                drawingContext.fillRect(toDrawingCoordinate(x, 0) + (SQUARE_SIZE / 4), toDrawingCoordinate(y, yOffset) + (SQUARE_SIZE / 4), SQUARE_SIZE / 2, SQUARE_SIZE / 2);
+                drawingContext.fillRect(toDrawingCoordinate(x, GRID_X_OFFSET) + (SQUARE_SIZE / 4), toDrawingCoordinate(y, yOffset) + (SQUARE_SIZE / 4), SQUARE_SIZE / 2, SQUARE_SIZE / 2);
             }
         }
     }
@@ -728,7 +730,7 @@ function drawHitsOnShips(shipList, yOffset, drawingContext) {
  * @param drawingContext
  */
 function drawBoard(drawingContext) {
-    drawGrid(0, SQUARE_SIZE, state.squareCount, drawingContext);
+    drawGrid(TOP_GRID_TOP, SQUARE_SIZE, state.squareCount, drawingContext);
     drawGrid(BOTTOM_GRID_TOP, SQUARE_SIZE, state.squareCount, drawingContext);
 }
 
@@ -742,15 +744,20 @@ function drawBoard(drawingContext) {
  */
 function drawGrid(startY, size, count, drawingContext) {
     drawingContext.fillStyle = "blue";
-    drawingContext.fillRect(0, startY, size * count, size * count)
+    drawingContext.fillRect(GRID_X_OFFSET, startY, size * count, size * count)
     drawingContext.strokeStyle = "black";
     drawingContext.lineWidth = 1;
     for (let i = 0; i < count; i++) {
         for (let j = 0; j < count; j++) {
             drawingContext.beginPath();
-            drawingContext.rect(j * size, startY + (i * size), size, size);
+            drawingContext.rect(GRID_X_OFFSET + (j * size), startY + (i * size), size, size);
             drawingContext.stroke();
         }
+        // draw the grid labels
+        drawingContext.fillStyle = "black";
+        drawingContext.font = "8px Arial";
+        drawingContext.fillText("" + (i + 1), (GRID_X_OFFSET + SQUARE_SIZE / 3) + (i * size), startY - (SQUARE_SIZE / 2));
+        drawingContext.fillText("" + (i + 1), SQUARE_SIZE / 3, (startY + SQUARE_SIZE / 2) + (i * size));
     }
 }
 
