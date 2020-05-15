@@ -49,6 +49,10 @@ io.sockets.on('connection', function (socket) {
             }
         });
 
+        socket.on('newgame', function (data) {
+            game.reset();
+        });
+
         socket.on('sendMsgToServer', function (data) {
             let name = "User " + game.getPlayer(socket.id).getPlayerNum();
             game.broadcastChat(name + ": " + data);

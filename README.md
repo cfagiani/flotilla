@@ -26,10 +26,7 @@ If you fire upon a cell with multiple ships present, ALL ships in that cell will
 
 
 ##### TODO: 
-* reset button prior to starting
-* play again button(s) (same players vs random pairing)
 * unit tests
-* ready button should disappear after click
 * include heading in intel
 * show sunk ships
 * color/styles in chat box for system messages

@@ -4,8 +4,8 @@ let TOP_GRID_TOP = 20;
 let BOTTOM_GRID_TOP = 320;
 let ROTATION_RADIANS = (Math.PI / 180) * 90;
 let ALPHA_FACTOR = 0.2;
-let BUTTON_WIDTH = 80;
-let BUTTON_HEIGHT = 40;
+let BUTTON_WIDTH = 90;
+let BUTTON_HEIGHT = 30;
 let DOUBLE_TOUCH_SPEED = 250;
 let GRID_X_OFFSET = 20;
 
@@ -28,6 +28,7 @@ let currentMessage = ['Place your ships'];
 let socket = null;
 let touchStart = 0;
 let lastTouch = null;
+let buttonVisible = false;
 
 
 init();
@@ -190,31 +191,42 @@ function draw() {
  * @param drawingContext
  */
 function drawButton(drawingContext) {
-    if (state.mode === "placement" && allShipsPlaced()) {
-        if (state.playerState != null && state.playerState.role === 'observer') {
-            return;
-        }
-        drawingContext.fillStyle = "gray";
+    let fontSize = 16;
+    let buttonText = "";
 
-        drawingContext.fillRect(CONTROL_X, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-        drawingContext.font = "20px Arial";
-        drawingContext.fillStyle = "black";
-        drawingContext.fillText("Ready", CONTROL_X + 10, BUTTON_Y + 25);
-        drawingContext.strokeStyle = "black";
-        drawingContext.strokeRect(CONTROL_X, BUTTON_Y, 80, 40);
-        drawingContext.strokeStyle = "white";
-        drawingContext.beginPath();
-        if (buttonPressed) {
-            drawingContext.moveTo(CONTROL_X, BUTTON_Y);
-            drawingContext.lineTo(CONTROL_X + BUTTON_WIDTH, BUTTON_Y);
-            drawingContext.lineTo(CONTROL_X + BUTTON_WIDTH, BUTTON_Y + BUTTON_HEIGHT);
-        } else {
-            drawingContext.moveTo(CONTROL_X + BUTTON_WIDTH, BUTTON_Y);
-            drawingContext.lineTo(CONTROL_X + BUTTON_WIDTH, BUTTON_Y + BUTTON_HEIGHT);
-            drawingContext.lineTo(CONTROL_X, BUTTON_Y + BUTTON_HEIGHT);
-        }
-        drawingContext.stroke();
+    if (state.mode === 'gameOver') {
+        buttonText = "Play Again";
+    } else if (state.mode === "placement" && allShipsPlaced()) {
+        buttonText = "Ready";
     }
+    if (buttonText === "" || state.playerState.role === 'observer') {
+        buttonVisible = false;
+        return;
+    }
+    buttonVisible = true;
+    let textWidth = (fontSize / 2) * buttonText.length;
+    let textX = CONTROL_X + ((BUTTON_WIDTH - textWidth) / 2);
+
+    drawingContext.fillStyle = "gray";
+    drawingContext.fillRect(CONTROL_X, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+    drawingContext.font = fontSize + "px Arial";
+    drawingContext.fillStyle = "black";
+    drawingContext.fillText(buttonText, textX, BUTTON_Y + 20);
+    drawingContext.strokeStyle = "black";
+    drawingContext.strokeRect(CONTROL_X, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+    drawingContext.strokeStyle = "white";
+    drawingContext.beginPath();
+    if (buttonPressed) {
+        drawingContext.moveTo(CONTROL_X, BUTTON_Y);
+        drawingContext.lineTo(CONTROL_X + BUTTON_WIDTH, BUTTON_Y);
+        drawingContext.lineTo(CONTROL_X + BUTTON_WIDTH, BUTTON_Y + BUTTON_HEIGHT);
+    } else {
+        drawingContext.moveTo(CONTROL_X + BUTTON_WIDTH, BUTTON_Y);
+        drawingContext.lineTo(CONTROL_X + BUTTON_WIDTH, BUTTON_Y + BUTTON_HEIGHT);
+        drawingContext.lineTo(CONTROL_X, BUTTON_Y + BUTTON_HEIGHT);
+    }
+    drawingContext.stroke();
+
 }
 
 /**
@@ -334,15 +346,13 @@ function rotateShip(event) {
  * @param event
  */
 function handleButtonDown(event) {
-    if (state.mode === 'placement' && state.playerState != null) {
-        if (allShipsPlaced()) {
-            let clickX = event.pageX - CANVAS_LEFT;
-            let clickY = event.pageY - CANVAS_RIGHT;
-            if (clickX >= CONTROL_X && clickX < CONTROL_X + BUTTON_WIDTH) {
-                if (clickY >= BUTTON_Y && clickY <= BUTTON_Y + BUTTON_HEIGHT) {
-                    buttonPressed = true;
-                    draw();
-                }
+    if (buttonVisible) {
+        let clickX = event.pageX - CANVAS_LEFT;
+        let clickY = event.pageY - CANVAS_RIGHT;
+        if (clickX >= CONTROL_X && clickX < CONTROL_X + BUTTON_WIDTH) {
+            if (clickY >= BUTTON_Y && clickY <= BUTTON_Y + BUTTON_HEIGHT) {
+                buttonPressed = true;
+                draw();
             }
         }
     }
@@ -355,10 +365,15 @@ function handleButtonDown(event) {
 function handleButtonUp(event) {
     if (buttonPressed) {
         // if Ready button was pressed, submit state to server
-        socket.emit("ready", state.playerState);
-        // no more ship movement allowed
-        currentMessage = ['Waiting for opponent'];
-        canDrag = false;
+        if (state.mode === 'placement') {
+            socket.emit("ready", state.playerState);
+            // no more ship movement allowed
+            currentMessage = ['Waiting for opponent'];
+            canDrag = false;
+        } else {
+            socket.emit("newgame");
+        }
+
         buttonPressed = false;
     }
 }
