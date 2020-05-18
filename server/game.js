@@ -169,61 +169,107 @@ class Game {
             result['shooter'] = shooter.getPlayerNum();
             switch (ordinance) {
                 case 'missile':
-                    let misses = 0;
-                    let hits = 0;
-                    let sinkings = []
-                    for (let i = -1; i < 2; i++) {
-                        for (let j = -1; j < 2; j++) {
-                            let shot = otherPlayer.shotAt(x + i, y + j, true, this.turnNumber, SQUARE_COUNT);
-                            if (shot != null) {
-                                if (shot.isHit) {
-                                    hits++;
-                                    if (shot.sunk.length > 0) {
-                                        sinkings = sinkings.concat(shot.sunk);
-                                    }
-                                } else {
-                                    misses++;
-                                }
-                                // we get null back if the shot was out of bounds; don't push those to the history list
-                                shooter.addShot(shot, ordinance);
-                            }
-                        }
-                    }
-                    result['message'] = ": " + hits + " hit" + (hits === 0 || hits > 1 ? "s" : "") +
-                        " and " + misses + " miss" + (misses === 0 || misses > 1 ? "es" : "");
-                    if (sinkings.length > 0) {
-                        result['message'] = result['message'] + " Sunk " + sinkings.join(',');
-                    }
-                    otherPlayer.advanceShips(SQUARE_COUNT);
+                    result['message'] = this.handleMissileStrike(x, y, shooter, otherPlayer);
                     break;
                 case 'drone':
-                    let intel = [];
-                    otherPlayer.advanceShips(SQUARE_COUNT);
-                    for (let i = -2; i < 3; i++) {
-                        for (let j = -2; j < 3; j++) {
-                            let shot = otherPlayer.shotAt(x + i, y + j, false, this.turnNumber, SQUARE_COUNT)
-                            if (shot != null) {
-                                intel.push(shot);
-                            }
-                        }
-                    }
-                    result['message'] = '';
-                    shooter.setIntel(intel);
+                    result['message'] = this.handleDroneStrike(x, y, shooter, otherPlayer);
                     break;
                 case 'shell':
-                    let shot = otherPlayer.shotAt(x, y, true, this.turnNumber, SQUARE_COUNT);
-                    shooter.addShot(shot, ordinance);
-                    result['message'] = shot.isHit ? ': hit' : ': miss';
-                    if (shot.sunk.length > 0) {
-                        result['message'] = result['message'] + " Sunk " + shot.sunk.join(',');
-                    }
-                    otherPlayer.advanceShips(SQUARE_COUNT);
+                    result['message'] = this.handleShellStrike(x, y, shooter, otherPlayer);
                     break;
             }
             shooter.updateOrdinanceCounts(ordinance);
             this.turnNumber++;
         }
         return result;
+    }
+
+    /**
+     * Handles the firing of a normal shell (the default ordinance) by the shooter at the otherPlayer.
+     * This will generate a single shot that can either hit or miss a target. A message string is returned describing
+     * the outcome of the shot.
+     *
+     * @param x
+     * @param y
+     * @param shooter
+     * @param otherPlayer
+     * @returns {string}
+     */
+    handleShellStrike(x, y, shooter, otherPlayer) {
+        let shot = otherPlayer.shotAt(x, y, true, this.turnNumber, SQUARE_COUNT);
+        shooter.addShot(shot, 'shell');
+        let message = shot.isHit ? ': hit' : ': miss';
+        if (shot.sunk.length > 0) {
+            message = message + " Sunk " + shot.sunk.join(',');
+        }
+        otherPlayer.advanceShips(SQUARE_COUNT);
+        return message;
+    }
+
+    /**
+     * Handles the firing of a drone by the shooter at the otherPlayer.
+     * This will generate 'intel' for the shooter. This currently returns a blank message string.
+     *
+     * @param x
+     * @param y
+     * @param shooter
+     * @param otherPlayer
+     * @return
+     */
+    handleDroneStrike(x, y, shooter, otherPlayer) {
+        let intel = [];
+        otherPlayer.advanceShips(SQUARE_COUNT);
+        for (let i = -2; i < 3; i++) {
+            for (let j = -2; j < 3; j++) {
+                let shot = otherPlayer.shotAt(x + i, y + j, false, this.turnNumber, SQUARE_COUNT)
+                if (shot != null) {
+                    intel.push(shot);
+                }
+            }
+        }
+        shooter.setIntel(intel);
+        return '';
+    }
+
+    /**
+     * Handles the firing of a missile by the shooter at the otherPlayer.
+     * This will generate multiple shots that each can either hit or miss a target. A message string is returned
+     * describing the outcome of the shot.
+     *
+     * @param x
+     * @param y
+     * @param shooter
+     * @param otherPlayer
+     * @returns {string}
+     */
+    handleMissileStrike(x, y, shooter, otherPlayer) {
+        let misses = 0;
+        let hits = 0;
+        let sinkings = []
+        for (let i = -1; i < 2; i++) {
+            for (let j = -1; j < 2; j++) {
+                let shot = otherPlayer.shotAt(x + i, y + j, true, this.turnNumber, SQUARE_COUNT);
+                if (shot != null) {
+                    if (shot.isHit) {
+                        hits++;
+                        if (shot.sunk.length > 0) {
+                            sinkings = sinkings.concat(shot.sunk);
+                        }
+                    } else {
+                        misses++;
+                    }
+                    // we get null back if the shot was out of bounds; don't push those to the history list
+                    shooter.addShot(shot, 'missile');
+                }
+            }
+        }
+        let message = ": " + hits + " hit" + (hits === 0 || hits > 1 ? "s" : "") +
+            " and " + misses + " miss" + (misses === 0 || misses > 1 ? "es" : "");
+        if (sinkings.length > 0) {
+            message = message + " Sunk " + sinkings.join(',');
+        }
+        otherPlayer.advanceShips(SQUARE_COUNT);
+        return message;
     }
 }
 
