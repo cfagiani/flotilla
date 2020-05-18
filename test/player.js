@@ -1,5 +1,7 @@
 let assert = require('assert');
 let Player = require('../server/player');
+let Ship = require('../server/ship');
+let Shot = require('../server/shot');
 
 describe('Player', function () {
     describe('#construcor', function () {
@@ -59,18 +61,82 @@ describe('Player', function () {
             assert.strictEqual(shot, null);
         });
         it('should not update ships hit if not using live ammo', function () {
-            //TODO: implement test
+            let player = new Player(1, null, 1, 'player');
+            player.ships[0].x = 1;
+            player.ships[0].y = 1;
+            let shot = player.shotAt(1, 1, false, 1, 10);
+            assert.strictEqual(shot.isHit, true);
+            for (let i = 0; i < player.ships[0].size; i++) {
+                assert.strictEqual(player.ships[0].hits[i], 0);
+            }
         });
         it('should set sinking if shot sinks a ship', function () {
-            //TODO: implement test
+            let player = new Player(1, null, 1, 'player');
+            player.ships[4].x = 1;
+            player.ships[4].y = 1;
+            let shot = player.shotAt(1, 1, true, 1, 10);
+            assert.strictEqual(shot.isHit, true);
+            assert.strictEqual(shot.sunk.length, 0);
+
+            shot = player.shotAt(2, 1, true, 1, 10);
+            assert.strictEqual(shot.isHit, true);
+            assert.strictEqual(shot.sunk.length, 1);
+            assert.strictEqual(shot.sunk[0], player.ships[4].name);
+
         });
         it('should return a shot object if shot misses', function () {
-            //TODO: implement test
+            let player = new Player(1, null, 1, 'player');
+            player.ships[0].x = 1;
+            player.ships[0].y = 1;
+            let shot = player.shotAt(9, 1, false, 1, 10);
+            assert.strictEqual(shot.isHit, false);
+
         });
         it('should return shot object with hit flag if it was a hit', function () {
-            //TODO: implement test
+            let player = new Player(1, null, 1, 'player');
+            player.ships[0].x = 1;
+            player.ships[0].y = 1;
+            let shot = player.shotAt(1, 1, false, 1, 10);
+            assert.strictEqual(shot.isHit, true);
         });
+    });
+    describe('#setReady', function () {
+        it('should update the coordinates and heading of all ships', function () {
+            let player = new Player(1, null, 1, 'player');
+            let updatedShips = [];
+            let fakeVal = 999;
+            let coordX = 3;
+            let coordY = 2;
+            let heading = 1;
+            for (let i = 0; i < player.ships.length; i++) {
+                let s = new Ship(player.ships[i].name, fakeVal, fakeVal, 'none');
+                s.x = coordX;
+                s.y = coordY;
+                s.heading = heading;
+                updatedShips.push(s);
+            }
+            player.setReady(updatedShips, true);
+            for (let i = 0; i < player.ships.length; i++) {
+                assert.strictEqual(player.ships[i].x, coordX);
+                assert.strictEqual(player.ships[i].y, coordY);
+                assert.strictEqual(player.ships[i].heading, heading);
+                assert.notStrictEqual(player.ships[i].size, fakeVal);
+                assert.notStrictEqual(player.ships[i].heading, fakeVal);
+                assert.notStrictEqual(player.ships[i].speed, fakeVal);
+            }
+        });
+    });
+    describe('#setIntel', function () {
+        it('should append intel', function () {
+            let player = new Player(1, null, 1, 'player');
 
+            let intelObj = [new Shot(1, 1, true, 1)];
+            player.setIntel(intelObj);
+            assert.strictEqual(player.intel.length, 1);
+            player.setIntel(intelObj);
+            assert.strictEqual(player.intel.length, 2);
+
+        });
     });
 });
 
