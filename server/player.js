@@ -61,9 +61,18 @@ class Player {
             intel: this.intel,
             role: this.role,
             depletedOrdinance: this.depletedOrdinance,
-            isTurn: this.playerNum === 1 ? turnNumber % 2 === 1 : turnNumber % 2 === 0,
+            isTurn: this.isTurn(turnNumber),
             isWinner: this.hasLiveShips()
         };
+    }
+
+    /**
+     * Returns true if it would be this player's turn on the game turnNumber passed in.
+     * @param turnNumber
+     * @return {boolean}
+     */
+    isTurn(turnNumber) {
+        return this.playerNum === 1 ? turnNumber % 2 === 1 : turnNumber % 2 === 0;
     }
 
     /**

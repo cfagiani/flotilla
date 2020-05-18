@@ -154,11 +154,19 @@ class Game {
         let shooter = this.participants[playerId];
         let result = {};
         if (shooter !== undefined) {
+            if (!shooter.isTurn(this.turnNumber)) {
+                console.log('Detected cheating attempt. Player ' + shooter.id + ' attempted to fire out of turn');
+                return result;
+            }
             let otherPlayer = null;
             if (shooter.playerNum === 1) {
                 otherPlayer = this.players[1];
             } else {
                 otherPlayer = this.players[0];
+            }
+            if (otherPlayer == null) {
+                // other player may have disconnected so game is pending a reset. Just return.
+                return result;
             }
             // make sure the player isn't trying to use ordinance that is already depleted.
             if (shooter.depletedOrdinance.includes(ordinance)) {

@@ -138,6 +138,20 @@ describe('Player', function () {
 
         });
     });
+    describe('#isTurn', function(){
+        it("should return true only if it would be this player's turn on the turn number passed in", function(){
+            let p1 = new Player(1,null,1,'player');
+            let p2 = new Player(2,null,2,'player');
+            assert.strictEqual(p1.isTurn(1), true);
+            assert.strictEqual(p2.isTurn(1), false);
+            assert.strictEqual(p1.isTurn(2), false);
+            assert.strictEqual(p2.isTurn(2), true);
+            assert.strictEqual(p1.isTurn(3), true);
+            assert.strictEqual(p2.isTurn(3), false);
+
+
+        });
+    });
 });
 
 

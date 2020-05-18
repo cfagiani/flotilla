@@ -180,15 +180,73 @@ describe('Game', function () {
     });
     describe('#getReadyCount', function () {
         it('should return the number of players that are "ready"', function () {
-            let game= new Game();
-            assert.strictEqual(game.getReadyCount(),0);
+            let game = new Game();
+            assert.strictEqual(game.getReadyCount(), 0);
             game.addPlayer(new MockSocket());
             game.addPlayer(new MockSocket());
-            assert.strictEqual(game.getReadyCount(),0);
+            assert.strictEqual(game.getReadyCount(), 0);
             game.players[0].setReady([], true);
-            assert.strictEqual(game.getReadyCount(),1);
+            assert.strictEqual(game.getReadyCount(), 1);
             game.players[1].setReady([], true);
-            assert.strictEqual(game.getReadyCount(),2);
+            assert.strictEqual(game.getReadyCount(), 2);
+        });
+    });
+    describe('#recordTurn', function () {
+        it('should return without doing anything if shooter is not found', function () {
+            let game = new Game();
+            game.addPlayer(new MockSocket());
+            let result = game.recordTurn(-99, 1, 1, 'shell');
+            assert.strictEqual(Object.keys(result).length, 0);
+            assert.strictEqual(game.turnNumber, 1);
+        });
+        it('should return without doing anything if the otherPlayer is null', function () {
+            let game = new Game();
+            game.addPlayer(new MockSocket());
+            let result = game.recordTurn(game.players[0].id, 1, 1, 'shell');
+            assert.strictEqual(Object.keys(result).length, 0);
+            assert.strictEqual(game.turnNumber, 1);
+        });
+        it('should not do anything if user attempts to use depleted ordinance', function () {
+            let game = new Game();
+            game.addPlayer(new MockSocket());
+            game.addPlayer(new MockSocket());
+            game.players[0].depletedOrdinance.push('missile');
+            let result = game.recordTurn(game.players[0].id, 1, 1, 'missile');
+            assert.strictEqual(Object.keys(result).length, 0);
+            assert.strictEqual(game.turnNumber, 1);
+        });
+        it('should increment turn on a valid turn', function () {
+            let game = new Game();
+            game.addPlayer(new MockSocket());
+            game.addPlayer(new MockSocket());
+            let result = game.recordTurn(game.players[0].id, 1, 1, 'shell');
+            assert.strictEqual(game.turnNumber, 2);
+        });
+        it('should not do anything if player shoots out of turn', function () {
+            let game = new Game();
+            game.addPlayer(new MockSocket());
+            game.addPlayer(new MockSocket());
+            let result = game.recordTurn(game.players[1].id, 1, 1, 'shell');
+            assert.strictEqual(Object.keys(result).length, 0);
+            assert.strictEqual(game.turnNumber, 1);
+        });
+        it('should update the shooter ordinance counts for missiles', function () {
+            let game = new Game();
+            let player1 = game.addPlayer(new MockSocket());
+            game.addPlayer(new MockSocket());
+            let ordinanceType = 'missile';
+            let preShotCount = player1.ordinance[ordinanceType];
+            game.recordTurn(player1.id, 1, 1, ordinanceType);
+            assert.strictEqual(player1.ordinance[ordinanceType], preShotCount - 1);
+        });
+        it('should update the shooter ordinance counts for drones', function () {
+            let game = new Game();
+            let player1 = game.addPlayer(new MockSocket());
+            game.addPlayer(new MockSocket());
+            let ordinanceType = 'drone';
+            let preShotCount = player1.ordinance[ordinanceType];
+            game.recordTurn(player1.id, 1, 1, ordinanceType);
+            assert.strictEqual(player1.ordinance[ordinanceType], preShotCount - 1);
         });
     });
 });
