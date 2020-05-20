@@ -265,8 +265,9 @@ function setupChat(socket) {
     let chatForm = document.getElementById('chatForm');
 
     socket.on('addToChat', function (data) {
+        console.log(data);
         let scrollPct = chatText.scrollTop / (chatText.scrollHeight - chatText.clientHeight);
-        chatText.innerHTML += '<div>' + data + '</div>';
+        chatText.innerHTML += '<div class="' + data.type + '">' + data.message + '</div>';
         if (scrollPct === 1 || Number.isNaN(scrollPct)) {
             // if the user wasn't already scrolling up, we want to advance the scroll so we always can see latest
             chatText.scrollTop = chatText.scrollHeight;

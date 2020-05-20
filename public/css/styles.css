@@ -52,6 +52,14 @@ legend {
     overflow-y: scroll;
 }
 
+#chatText div.system {
+    font-weight: bold;
+}
+
+#chatText div.turn {
+    font-style: italic;
+}
+
 #chatFormDiv {
     position: absolute;
     bottom: 10px;

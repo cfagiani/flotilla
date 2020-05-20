@@ -14,9 +14,9 @@ class Game {
         this.players = [null, null];
     }
 
-    broadcastChat(message) {
+    broadcastChat(message, messageType) {
         for (let id in this.participants) {
-            this.participants[id].socket.emit('addToChat', message);
+            this.participants[id].socket.emit('addToChat', {'message': message, 'type': messageType});
         }
     }
 

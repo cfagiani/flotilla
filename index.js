@@ -37,13 +37,13 @@ io.sockets.on('connection', function (socket) {
 
         let player = game.addPlayer(socket);
         let name = "User " + player.getPlayerNum();
-        game.broadcastChat(name + " joined");
+        game.broadcastChat(name + " joined", 'system');
         socket.on('disconnect', function () {
             let name = "User " + game.getPlayer(socket.id).getPlayerNum();
-            game.broadcastChat(name + " left");
+            game.broadcastChat(name + " left", 'system');
             let wasPlayer = game.removePlayer(socket.id);
             if (wasPlayer) {
-                game.broadcastChat('Only 1 player. Game resetting');
+                game.broadcastChat('Only 1 player. Game resetting', 'system');
                 game.mode = 'placement';
                 game.reset();
             }
@@ -55,13 +55,13 @@ io.sockets.on('connection', function (socket) {
 
         socket.on('sendMsgToServer', function (data) {
             let name = "User " + game.getPlayer(socket.id).getPlayerNum();
-            game.broadcastChat(name + ": " + data);
+            game.broadcastChat(name + ": " + data, 'user');
 
         });
         socket.on('ready', function (data) {
             let player = game.getPlayer(socket.id);
             player.setReady(data.ships, true);
-            game.broadcastChat("User " + player.getPlayerNum() + " is ready.");
+            game.broadcastChat("User " + player.getPlayerNum() + " is ready.", 'system');
             if (game.getReadyCount() === 2) {
                 game.mode = 'play';
                 game.broadcastState();
@@ -72,7 +72,7 @@ io.sockets.on('connection', function (socket) {
             let result = game.recordTurn(data.playerId, data.x, data.y, data.ordinance.toLowerCase());
             if (result['shooter'] !== undefined) {
                 let message = 'User ' + result['shooter'] + ' fired a ' + data.ordinance + ' at ' + data.x + ',' + data.y + result['message'];
-                game.broadcastChat(message);
+                game.broadcastChat(message, 'turn');
             }
             game.broadcastState();
         });
