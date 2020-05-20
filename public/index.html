@@ -9,6 +9,10 @@
 <div id="gameDiv">
     <canvas id="gameCanvas" width="500" height="600" class="panel"></canvas>
     <div id="controlDiv" class="control-panel">
+        <div id="audiooptions">
+            Music: <img src="/img/musicOn.png" id="musicIcon"/>
+            Effects: <img src="/img/soundOn.png" id="effectIcon"/>
+        </div>
         <div id="shotSelectionDiv">
             <fieldset>
                 <legend>Ordinance type</legend>
@@ -42,6 +46,9 @@
         are ready to play. Please read the <a href="/help.html" target="_blank">instructions</a> for how to play.
     </p>
 </div>
+<audio loop id="music" preload="auto" src="/audio/music.mp3"/>
+<audio id="hitEffect" preload="auto" src="/audio/explosion.mp3"/>
+<audio id="missEffect" preload="auto" src="/audio/miss.mp3"/>
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script src="/js/flotilla.js"></script>
 </body>

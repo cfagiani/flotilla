@@ -29,6 +29,13 @@ let socket = null;
 let touchStart = 0;
 let lastTouch = null;
 let buttonVisible = false;
+let music = null;
+let hitEffect = null;
+let missEffect = null;
+let musicIcon = null;
+let effectIcon = null;
+let firstPlay = true;
+let effectsOn = true;
 
 
 init();
@@ -42,7 +49,9 @@ function init() {
     socket.emit('join', window.location.href);
     setupBoard(socket);
     setupChat(socket);
+    setupAudioControls();
     socket.on('stateUpdate', handleStateUpdate);
+
 }
 
 
@@ -103,6 +112,11 @@ function handlePlayModeUpdate() {
             currentMessage = ['Click to shoot'];
         } else {
             currentMessage = ['Waiting for opponent'];
+            // handle sound effect for last shot
+            if (state.playerState != null &&
+                state.playerState.shots !== undefined) {
+                playEffectForShot(state.playerState.shots);
+            }
         }
         updateOrdinance(state.playerState);
         canDrag = false;
@@ -182,7 +196,6 @@ function draw() {
     drawIntel(drawingContext);
     drawMessage(drawingContext);
     drawButton(drawingContext);
-
 }
 
 /**
@@ -292,11 +305,13 @@ function setupBoard() {
     }, false);
 
     canvasElement.addEventListener('mousedown', function (event) {
+        startMusic();
         pickUpShip(event);
         handleButtonDown(event);
 
     });
     canvasElement.addEventListener('touchstart', function (event) {
+        startMusic();
         if (event.touches.length === 1) {
             let now = new Date().getTime();
 
@@ -831,4 +846,77 @@ function updateOrdinance(playerState) {
             radio[i].disabled = false;
         }
     }
+}
+
+/**
+ * Starts the music if this is the first interaction (since we can't autoplay music without an iframe we need to wait
+ * for the first user interaction).
+ */
+function startMusic() {
+    if (firstPlay) {
+        firstPlay = false;
+        music.play();
+    }
+}
+
+/**
+ * Plays/pauses the music.
+ * @param turnOn
+ */
+function toggleMusic() {
+    if (music.paused) {
+        music.play();
+        musicIcon.src = '/img/musicOn.png';
+    } else {
+        music.pause();
+        musicIcon.src = '/img/musicOff.png';
+    }
+}
+
+function toggleEffects() {
+    if (effectsOn) {
+        effectIcon.src = '/img/soundOff.png';
+    } else {
+        effectIcon.src = '/img/soundOn.png';
+    }
+    effectsOn = !effectsOn;
+}
+
+/**
+ * Looks at all the shots generated on the last turn and play the right sound effect if effects are not muted.
+ * Since turns can generate multiple Shot objects, we need to look at the array of shots from the end to get all the
+ * shots for the turn. If any are hits, play the hit effect. If not, play the miss effect.
+ */
+function playEffectForShot(shots) {
+    if (!effectsOn || shots === undefined || shots.length === 0) {
+        return;
+    }
+    let lastTurn = shots[shots.length - 1].turnNumber;
+    let hasHit = false;
+    for (let i = shots.length - 1; i >= 0; i--) {
+        if (shots[i].turnNumber !== lastTurn) {
+            break;
+        }
+        if (shots[i].isHit) {
+            hasHit = true;
+        }
+    }
+    if (hasHit) {
+        hitEffect.play();
+    } else {
+        missEffect.play();
+    }
+}
+
+/**
+ * Populates the variables holding the dom elements for interacting with the audio controls and playing the audio.
+ */
+function setupAudioControls() {
+    music = document.getElementById('music');
+    musicIcon = document.getElementById('musicIcon');
+    musicIcon.addEventListener('click', toggleMusic);
+    effectIcon = document.getElementById('effectIcon');
+    effectIcon.addEventListener('click', toggleEffects);
+    hitEffect = document.getElementById('hitEffect');
+    missEffect = document.getElementById('missEffect');
 }

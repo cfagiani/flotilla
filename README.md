@@ -26,7 +26,6 @@ If you fire upon a cell with multiple ships present, ALL ships in that cell will
 
 
 ##### TODO: 
-* unit tests
 * include heading in intel
 * show sunk ships
 * color/styles in chat box for system messages
@@ -35,6 +34,5 @@ If you fire upon a cell with multiple ships present, ALL ships in that cell will
 This section contains ideas for further enhancements for the game. 
 * submarines can only be hit if they're the only thing in a cell
 * "Easy Mode" - disables ship movement
-* music/sound effects
 * prevent second connection from same user (to prevent acting as an observer on own game)
 
