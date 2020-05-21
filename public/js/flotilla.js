@@ -191,6 +191,7 @@ function draw() {
     drawingContext.clearRect(0, 0, WIDTH, HEIGHT);
     drawBoard(drawingContext);
     drawShips(drawingContext);
+    drawSunk(drawingContext);
     drawShots(drawingContext);
     drawHits(drawingContext);
     drawIntel(drawingContext);
@@ -265,7 +266,6 @@ function setupChat(socket) {
     let chatForm = document.getElementById('chatForm');
 
     socket.on('addToChat', function (data) {
-        console.log(data);
         let scrollPct = chatText.scrollTop / (chatText.scrollHeight - chatText.clientHeight);
         chatText.innerHTML += '<div class="' + data.type + '">' + data.message + '</div>';
         if (scrollPct === 1 || Number.isNaN(scrollPct)) {
@@ -592,7 +592,7 @@ function drawShips(drawingContext) {
 function drawShip(ship, offsetY, drawingContext) {
     let shipY = ship.drawingY;
     let shipX = ship.drawingX;
-    if (state.mode !== 'placement') {
+    if (state.mode !== 'placement' && ship.x !== undefined) {
         shipY = toDrawingCoordinate(ship.y, offsetY);
         shipX = toDrawingCoordinate(ship.x, GRID_X_OFFSET);
     }
@@ -667,6 +667,35 @@ function drawShots(drawingContext) {
             ;
         }
     }
+}
+
+/**
+ * Draws the set of ships a player has sunk.
+ * @param drawingContext
+ */
+function drawSunk(drawingContext) {
+    if (state.mode === 'placement' || state.playerState == null || state.playerState.role !== 'player' || state.playerState.shots === undefined) {
+        return;
+    }
+    drawingContext.font = "16px Arial";
+    drawingContext.fillStyle = "black";
+    drawingContext.fillText("Sunk Ships", CONTROL_X, 20);
+    let sunkSet = new Set();
+    for (let i = 0; i < state.playerState.shots.length; i++) {
+        if (state.playerState.shots[i].sunk.length > 0) {
+            for (let j = 0; j < state.playerState.shots[i].sunk.length; j++) {
+                sunkSet.add(state.playerState.shots[i].sunk[j]);
+            }
+        }
+    }
+    let count = 0;
+    for (let shipName of sunkSet) {
+        let ship = {drawingX: CONTROL_X, drawingY: HEIGHT / 20 + ((HEIGHT / 20) * count), name: shipName, heading: 0};
+        drawShip(ship, 0, drawingContext);
+        count++;
+    }
+
+
 }
 
 /**
